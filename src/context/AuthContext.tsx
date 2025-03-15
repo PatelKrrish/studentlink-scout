@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthState, User, StudentProfile, RecruiterProfile, UserRole } from '../lib/types';
 import { USER_ROLES } from '../lib/constants';
@@ -21,7 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     error: null,
   });
 
-  // Load user from localStorage on mount
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -53,10 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setState({ ...state, isLoading: true, error: null });
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // For demo purposes, just check if it's a predefined user
       if (email === 'student@college.edu' && password === 'password') {
         const user: User = {
           id: 'usr1',
@@ -189,10 +185,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setState({ ...state, isLoading: true, error: null });
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Check email format based on role
       if (role === USER_ROLES.STUDENT && !email.endsWith('@college.edu')) {
         setState({
           ...state,
@@ -203,7 +197,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // For demo, create a user with given details
       const user: User = {
         id: `user-${Date.now()}`,
         email,
@@ -211,12 +204,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         firstName,
         lastName,
         createdAt: new Date(),
-        verified: role === USER_ROLES.STUDENT, // Students are auto-verified for demo
+        verified: role === USER_ROLES.STUDENT,
       };
 
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Create empty profile based on role
       if (role === USER_ROLES.STUDENT) {
         const studentProfile: StudentProfile = {
           id: `profile-${Date.now()}`,
@@ -230,6 +222,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           phoneNumber: '',
           collegeEmail: email,
           workStatus: 'available',
+          experience: '',
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -249,7 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           companyName: '',
           industry: '',
           website: '',
-          approved: false, // Recruiters need approval
+          approved: false,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -295,7 +288,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setState({ ...state, isLoading: true });
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
 
       const updatedProfile = { ...state.studentProfile, ...profile, updatedAt: new Date() };
@@ -319,7 +311,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setState({ ...state, isLoading: true });
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
 
       const updatedProfile = { ...state.recruiterProfile, ...profile, updatedAt: new Date() };

@@ -1,4 +1,3 @@
-
 // Navigation
 export const ROUTES = {
   HOME: '/',
@@ -134,7 +133,11 @@ export const DUMMY_STUDENTS = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-];
+].map(student => ({
+  ...student,
+  experience: student.experience || '',
+  certificates: student.certificates || []
+}));
 
 export const DUMMY_RECRUITERS = [
   {

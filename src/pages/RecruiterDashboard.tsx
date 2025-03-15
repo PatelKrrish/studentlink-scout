@@ -27,10 +27,10 @@ const RecruiterDashboard = () => {
   const [students, setStudents] = useState<StudentProfile[]>(
     DUMMY_STUDENTS.map(student => ({
       ...student,
-      workStatus: formatWorkStatus(student.workStatus),
-      experience: student.experience || '',
-      certificates: student.certificates || []
-    }))
+      workStatus: formatWorkStatus(student.workStatus || 'available'),
+      experience: 'experience' in student ? student.experience || '' : '',
+      certificates: 'certificates' in student ? student.certificates || [] : []
+    }) as StudentProfile[])
   );
   
   const [filteredStudents, setFilteredStudents] = useState<StudentProfile[]>(students);
