@@ -1,6 +1,8 @@
 
 export type UserRole = 'student' | 'recruiter' | 'admin';
 
+export type WorkStatus = 'available' | 'employed' | 'not_available';
+
 export interface User {
   id: string;
   email: string;
@@ -27,7 +29,7 @@ export interface StudentProfile {
   resume?: string;
   certificates?: string[];
   experience: string;
-  workStatus: 'available' | 'employed' | 'not_available';
+  workStatus: WorkStatus;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Pagination, 
   PaginationContent, 
@@ -16,12 +16,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { DEPARTMENT_OPTIONS, DUMMY_STUDENTS, WORK_STATUS_OPTIONS } from '@/lib/constants';
-import { StudentProfile } from '@/lib/types';
+import { DEPARTMENT_OPTIONS, WORK_STATUS_OPTIONS } from '@/lib/constants';
+import { StudentProfile, WorkStatus } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { profileService, jobOffersService } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 
 const SearchStudents = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,29 +33,50 @@ const SearchStudents = () => {
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
-  const [workStatusFilter, setWorkStatusFilter] = useState<'' | 'available' | 'employed' | 'not_available'>('');
+  const [workStatusFilter, setWorkStatusFilter] = useState<'' | WorkStatus>('');
   
-  // Placeholder data from constants, ensuring proper typing
-  const allStudents: StudentProfile[] = DUMMY_STUDENTS;
+  // Data fetching state
+  const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Filter students based on search and filter criteria
-  const filteredStudents = allStudents.filter((student) => {
-    const matchesSearch = searchTerm === '' || 
-      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.experience.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    const matchesDepartment = departmentFilter === '' || student.department === departmentFilter;
-    const matchesWorkStatus = workStatusFilter === '' || student.workStatus === workStatusFilter;
+  // Fetch students with filters
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const data = await profileService.getAllStudents({
+          search: searchTerm,
+          department: departmentFilter,
+          workStatus: workStatusFilter
+        });
+        setStudents(data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch students');
+        toast({
+          title: "Error",
+          description: "Failed to load students. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    return matchesSearch && matchesDepartment && matchesWorkStatus;
-  });
+    fetchStudents();
+  }, [searchTerm, departmentFilter, workStatusFilter, toast]);
   
   // Calculate pagination
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
-  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(students.length / studentsPerPage);
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, departmentFilter, workStatusFilter]);
   
   // Handlers
   const handlePageChange = (page: number) => {
@@ -63,18 +87,44 @@ const SearchStudents = () => {
   
   const handleViewProfile = (student: StudentProfile) => {
     // In a real app, this would navigate to the student's profile
-    // For now, just show a toast
     toast({
       title: "Profile Access",
       description: `Viewing ${student.firstName} ${student.lastName}'s profile`,
     });
   };
   
-  const handleConnect = (student: StudentProfile) => {
-    toast({
-      title: "Connection Request",
-      description: `Request sent to ${student.firstName} ${student.lastName}`,
-    });
+  const handleConnect = async (student: StudentProfile) => {
+    if (!user || user.role !== 'recruiter') {
+      toast({
+        title: "Access Denied",
+        description: "Only recruiters can connect with students",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // This would normally create a connection or job offer
+      await jobOffersService.createJobOffer({
+        recruiterId: user.id,
+        studentId: student.id,
+        position: "Software Developer", // Default position, would be customizable in real app
+        description: "We would like to connect regarding a potential opportunity",
+        location: "Remote",
+        type: "full-time",
+      });
+      
+      toast({
+        title: "Connection Request",
+        description: `Request sent to ${student.firstName} ${student.lastName}`,
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to send connection request",
+        variant: "destructive",
+      });
+    }
   };
   
   const renderPagination = () => {
@@ -157,7 +207,7 @@ const SearchStudents = () => {
     return option ? option.label : value;
   };
   
-  const getWorkStatusLabel = (value: 'available' | 'employed' | 'not_available') => {
+  const getWorkStatusLabel = (value: WorkStatus) => {
     const option = WORK_STATUS_OPTIONS.find(option => option.value === value);
     return option ? option.label : value;
   };
@@ -198,7 +248,7 @@ const SearchStudents = () => {
           <div>
             <Select 
               value={workStatusFilter} 
-              onValueChange={(value: '' | 'available' | 'employed' | 'not_available') => setWorkStatusFilter(value)}
+              onValueChange={(value: '' | WorkStatus) => setWorkStatusFilter(value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by availability" />
@@ -206,7 +256,7 @@ const SearchStudents = () => {
               <SelectContent>
                 <SelectItem value="">All Statuses</SelectItem>
                 {WORK_STATUS_OPTIONS.map((status) => (
-                  <SelectItem key={status.value} value={status.value as 'available' | 'employed' | 'not_available'}>
+                  <SelectItem key={status.value} value={status.value as WorkStatus}>
                     {status.label}
                   </SelectItem>
                 ))}
@@ -217,11 +267,39 @@ const SearchStudents = () => {
         
         {/* Results Count */}
         <div className="mb-4 text-sm text-muted-foreground">
-          Showing {indexOfFirstStudent + 1}-{Math.min(indexOfLastStudent, filteredStudents.length)} of {filteredStudents.length} results
+          {loading ? (
+            "Loading students..."
+          ) : (
+            `Showing ${indexOfFirstStudent + 1}-${Math.min(indexOfLastStudent, students.length)} of ${students.length} results`
+          )}
         </div>
         
         {/* Student Grid */}
-        {currentStudents.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="flex flex-col h-full">
+                <CardHeader className="flex flex-row items-center gap-4">
+                  <div className="h-16 w-16 rounded-full bg-gray-200 animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-3 w-2/3 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex gap-2">
+                  <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : currentStudents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {currentStudents.map((student) => (
               <Card key={student.id} className="flex flex-col h-full">
@@ -264,6 +342,7 @@ const SearchStudents = () => {
                   <Button 
                     onClick={() => handleConnect(student)}
                     className="flex-1"
+                    disabled={!user || user.role !== 'recruiter'}
                   >
                     Connect
                   </Button>
@@ -279,7 +358,7 @@ const SearchStudents = () => {
         )}
         
         {/* Pagination */}
-        {filteredStudents.length > 0 && renderPagination()}
+        {!loading && students.length > 0 && renderPagination()}
       </main>
       <Footer />
     </div>
