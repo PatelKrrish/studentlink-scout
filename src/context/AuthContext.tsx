@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           verified: true,
         };
 
-        const studentProfile = {
+        const studentProfile: StudentProfile = {
           id: '1',
           userId: 'usr1',
           firstName: 'John',
@@ -81,6 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           collegeEmail: 'john.smith@college.edu',
           profilePicture: 'https://i.pravatar.cc/300?img=1',
           workStatus: 'available',
+          experience: 'I have 2 years of experience with React and TypeScript.',
           createdAt: new Date(),
           updatedAt: new Date(),
         };

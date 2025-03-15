@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { Link, useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { USER_ROLES, ROUTES, VALIDATION } from '@/lib/constants';
 import type { UserRole } from '@/lib/types';
@@ -142,26 +142,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           {type === 'register' && (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <Input
-                  type="text"
-                  name="firstName"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  error={!!formErrors.firstName}
-                  helperText={formErrors.firstName}
-                  required
-                />
-                <Input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  error={!!formErrors.lastName}
-                  helperText={formErrors.lastName}
-                  required
-                />
+                <div>
+                  <Input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    error={!!formErrors.firstName}
+                    helperText={formErrors.firstName}
+                    required
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    error={!!formErrors.lastName}
+                    helperText={formErrors.lastName}
+                    required
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">I am a</label>
@@ -177,39 +181,45 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               </div>
             </>
           )}
-          <Input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            error={!!formErrors.email}
-            helperText={formErrors.email}
-            required
-          />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            error={!!formErrors.password}
-            helperText={formErrors.password}
-            required
-          />
-          {type === 'register' && (
+          <div>
             <Input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
-              error={!!formErrors.confirmPassword}
-              helperText={formErrors.confirmPassword}
+              error={!!formErrors.email}
+              helperText={formErrors.email}
               required
             />
+          </div>
+          <div>
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              error={!!formErrors.password}
+              helperText={formErrors.password}
+              required
+            />
+          </div>
+          {type === 'register' && (
+            <div>
+              <Input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                error={!!formErrors.confirmPassword}
+                helperText={formErrors.confirmPassword}
+                required
+              />
+            </div>
           )}
-          <Button type="submit" loading={isLoading} fullWidth={true} className="mt-2">
+          <Button type="submit" loading={isLoading} className="mt-2 w-full">
             {type === 'login' ? 'Login' : 'Register'}
           </Button>
         </form>

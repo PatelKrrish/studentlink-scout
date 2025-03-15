@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Save, Upload, User } from 'lucide-react';
+import { Save, Upload, User as UserIcon } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { 
   ROUTES, 
   WORK_STATUS_OPTIONS, 
@@ -115,7 +115,15 @@ const StudentProfile = () => {
     
     if (validateForm()) {
       try {
-        await updateStudentProfile(formData);
+        // Convert string values to appropriate types before updating
+        const processedData = {
+          ...formData,
+          age: formData.age === '' ? 0 : Number(formData.age),
+          year: formData.year === '' ? 0 : Number(formData.year),
+          semester: formData.semester === '' ? 0 : Number(formData.semester),
+        };
+        
+        await updateStudentProfile(processedData);
       } catch (error) {
         console.error('Failed to update profile', error);
       }
@@ -147,7 +155,7 @@ const StudentProfile = () => {
                     />
                   ) : (
                     <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-2 border-border">
-                      <User className="w-12 h-12 text-muted-foreground" />
+                      <UserIcon className="w-12 h-12 text-muted-foreground" />
                     </div>
                   )}
                 </div>
@@ -166,24 +174,28 @@ const StudentProfile = () => {
               <CardContent>
                 <form id="profileForm" onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="First Name"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      error={!!formErrors.firstName}
-                      helperText={formErrors.firstName}
-                      required
-                    />
-                    <Input
-                      label="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      error={!!formErrors.lastName}
-                      helperText={formErrors.lastName}
-                      required
-                    />
+                    <div>
+                      <label className="block text-sm font-medium mb-1">First Name</label>
+                      <Input
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        error={!!formErrors.firstName}
+                        helperText={formErrors.firstName}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Last Name</label>
+                      <Input
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        error={!!formErrors.lastName}
+                        helperText={formErrors.lastName}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -315,7 +327,7 @@ const StudentProfile = () => {
                 </form>
               </CardContent>
               <CardFooter>
-                <Button type="submit" form="profileForm" loading={isLoading}>
+                <Button type="submit" form="profileForm" disabled={isLoading}>
                   <Save className="w-4 h-4 mr-2" />
                   Save Profile
                 </Button>
@@ -333,8 +345,6 @@ const StudentProfile = () => {
                   <p className="text-muted-foreground">Drag and drop your resume, or click to browse</p>
                   <Button variant="outline" size="sm">Browse Files</Button>
                 </div>
-
-                {/* Certificates section could be added here */}
               </CardContent>
             </Card>
           </div>
