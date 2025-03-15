@@ -1,26 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from '@/components/ui/pagination';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { DEPARTMENT_OPTIONS, WORK_STATUS_OPTIONS } from '@/lib/constants';
-import { StudentProfile, WorkStatus } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { profileService, jobOffersService } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { StudentProfile, WorkStatus } from '@/lib/types';
+import { profileService, jobOffersService } from '@/services/api';
+
+// Import new components
+import StudentSearchFilters from '@/components/students/StudentSearchFilters';
+import StudentResults from '@/components/students/StudentResults';
+import StudentPagination from '@/components/students/StudentPagination';
+import StudentResultsInfo from '@/components/students/StudentResultsInfo';
 
 const SearchStudents = () => {
   const { toast } = useToast();
@@ -68,9 +59,6 @@ const SearchStudents = () => {
   }, [searchTerm, departmentFilter, workStatusFilter, toast]);
   
   // Calculate pagination
-  const indexOfLastStudent = currentPage * studentsPerPage;
-  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
   const totalPages = Math.ceil(students.length / studentsPerPage);
   
   // Reset to first page when filters change
@@ -127,91 +115,6 @@ const SearchStudents = () => {
     }
   };
   
-  const renderPagination = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      // Show all pages if total is less than max visible
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show first page, last page, current page, and neighbors
-      const leftNeighbor = Math.max(1, currentPage - 1);
-      const rightNeighbor = Math.min(totalPages, currentPage + 1);
-      
-      if (currentPage > 2) {
-        pages.push(1);
-        if (currentPage > 3) {
-          pages.push('ellipsis1');
-        }
-      }
-      
-      for (let i = leftNeighbor; i <= rightNeighbor; i++) {
-        pages.push(i);
-      }
-      
-      if (currentPage < totalPages - 1) {
-        if (currentPage < totalPages - 2) {
-          pages.push('ellipsis2');
-        }
-        pages.push(totalPages);
-      }
-    }
-    
-    return (
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious 
-              onClick={() => handlePageChange(currentPage - 1)}
-              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-            />
-          </PaginationItem>
-          
-          {pages.map((page, index) => {
-            if (page === 'ellipsis1' || page === 'ellipsis2') {
-              return (
-                <PaginationItem key={`ellipsis-${index}`}>
-                  <PaginationLink>...</PaginationLink>
-                </PaginationItem>
-              );
-            }
-            
-            return (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  isActive={currentPage === page}
-                  onClick={() => handlePageChange(Number(page))}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            );
-          })}
-          
-          <PaginationItem>
-            <PaginationNext 
-              onClick={() => handlePageChange(currentPage + 1)}
-              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    );
-  };
-  
-  const getDepartmentLabel = (value: string) => {
-    const option = DEPARTMENT_OPTIONS.find(option => option.value === value);
-    return option ? option.label : value;
-  };
-  
-  const getWorkStatusLabel = (value: WorkStatus) => {
-    const option = WORK_STATUS_OPTIONS.find(option => option.value === value);
-    return option ? option.label : value;
-  };
-  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -222,143 +125,42 @@ const SearchStudents = () => {
         </div>
         
         {/* Search and Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <Input
-              placeholder="Search by name or skills..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div>
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
-                {DEPARTMENT_OPTIONS.map((dept) => (
-                  <SelectItem key={dept.value} value={dept.value}>
-                    {dept.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Select 
-              value={workStatusFilter} 
-              onValueChange={(value: '' | WorkStatus) => setWorkStatusFilter(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by availability" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
-                {WORK_STATUS_OPTIONS.map((status) => (
-                  <SelectItem key={status.value} value={status.value as WorkStatus}>
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <StudentSearchFilters 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          departmentFilter={departmentFilter}
+          setDepartmentFilter={setDepartmentFilter}
+          workStatusFilter={workStatusFilter}
+          setWorkStatusFilter={setWorkStatusFilter}
+        />
         
         {/* Results Count */}
-        <div className="mb-4 text-sm text-muted-foreground">
-          {loading ? (
-            "Loading students..."
-          ) : (
-            `Showing ${indexOfFirstStudent + 1}-${Math.min(indexOfLastStudent, students.length)} of ${students.length} results`
-          )}
-        </div>
+        <StudentResultsInfo 
+          loading={loading}
+          totalStudents={students.length}
+          currentPage={currentPage}
+          studentsPerPage={studentsPerPage}
+        />
         
         {/* Student Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="flex flex-col h-full">
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-gray-200 animate-pulse"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <div className="space-y-2">
-                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-3 w-full bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-3 w-2/3 bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : currentStudents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {currentStudents.map((student) => (
-              <Card key={student.id} className="flex flex-col h-full">
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} />
-                    <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-lg font-semibold">{student.firstName} {student.lastName}</h3>
-                    <p className="text-sm text-muted-foreground">{getDepartmentLabel(student.department)}</p>
-                    <Badge 
-                      variant={student.workStatus === 'available' ? 'default' : 
-                        student.workStatus === 'employed' ? 'secondary' : 'outline'}
-                      className="mt-1"
-                    >
-                      {getWorkStatusLabel(student.workStatus)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="line-clamp-3 text-sm">{student.experience}</p>
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-1">Year {student.year}, Semester {student.semester}</h4>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {student.certificates && student.certificates.map((cert, index) => (
-                        <Badge key={index} variant="outline">{cert}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleViewProfile(student)}
-                    className="flex-1"
-                  >
-                    View Profile
-                  </Button>
-                  <Button 
-                    onClick={() => handleConnect(student)}
-                    className="flex-1"
-                    disabled={!user || user.role !== 'recruiter'}
-                  >
-                    Connect
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium">No students found</h3>
-            <p className="text-muted-foreground">Try adjusting your search filters</p>
-          </div>
-        )}
+        <StudentResults 
+          loading={loading}
+          students={students}
+          currentPage={currentPage}
+          studentsPerPage={studentsPerPage}
+          onViewProfile={handleViewProfile}
+          onConnect={handleConnect}
+          isRecruiter={user?.role === 'recruiter'}
+        />
         
         {/* Pagination */}
-        {!loading && students.length > 0 && renderPagination()}
+        {!loading && students.length > 0 && (
+          <StudentPagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </main>
       <Footer />
     </div>
