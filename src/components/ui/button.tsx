@@ -36,10 +36,29 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
+  asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, loading, children, ...props }, ref) => {
+  ({ className, variant, size, fullWidth, loading, asChild, children, ...props }, ref) => {
+    // If asChild is true, we should render the child component with the button's styling
+    const Comp = asChild ? React.Children.only(children) : 'button';
+    
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(
+        children as React.ReactElement,
+        {
+          className: cn(
+            buttonVariants({ variant, size, fullWidth, className }),
+            loading && 'opacity-70 pointer-events-none relative'
+          ),
+          ref,
+          disabled: props.disabled || loading,
+          ...props,
+        }
+      );
+    }
+    
     return (
       <button
         className={cn(
