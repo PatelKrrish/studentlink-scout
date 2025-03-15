@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Search, UserIcon } from 'lucide-react';
@@ -30,7 +29,7 @@ const RecruiterDashboard = () => {
       workStatus: formatWorkStatus(student.workStatus || 'available'),
       experience: student.experience || '',
       certificates: student.certificates || []
-    }) as StudentProfile[])
+    }))
   );
   
   const [filteredStudents, setFilteredStudents] = useState<StudentProfile[]>(students);

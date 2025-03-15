@@ -26,18 +26,12 @@ export interface InputProps
     VariantProps<typeof inputVariants> {
   error?: boolean;
   helperText?: string;
-  label?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, variant, error, helperText, label, ...props }, ref) => {
+  ({ className, variant, error, helperText, ...props }, ref) => {
     return (
       <div className="w-full space-y-1">
-        {label && (
-          <label className="block text-sm font-medium mb-1" htmlFor={props.id || props.name}>
-            {label}
-          </label>
-        )}
         <input
           className={cn(inputVariants({ variant, error, className }))}
           ref={ref}
