@@ -96,6 +96,8 @@ export const DUMMY_STUDENTS = [
     communicationEmail: 'john.smith@gmail.com',
     profilePicture: 'https://i.pravatar.cc/300?img=1',
     workStatus: 'available',
+    experience: 'I have 2 years of experience with React and TypeScript.',
+    certificates: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -113,6 +115,8 @@ export const DUMMY_STUDENTS = [
     communicationEmail: 'emma.johnson@gmail.com',
     profilePicture: 'https://i.pravatar.cc/300?img=5',
     workStatus: 'available',
+    experience: 'Summer intern at ABC Corp.',
+    certificates: ['Excel Advanced'],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -130,14 +134,12 @@ export const DUMMY_STUDENTS = [
     communicationEmail: 'michael.brown@gmail.com',
     profilePicture: 'https://i.pravatar.cc/300?img=3',
     workStatus: 'employed',
+    experience: 'Part-time web developer at XYZ Agency.',
+    certificates: ['AWS Certified Developer', 'JavaScript Advanced'],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-].map(student => ({
-  ...student,
-  experience: student.experience || '',
-  certificates: student.certificates || []
-}));
+];
 
 export const DUMMY_RECRUITERS = [
   {

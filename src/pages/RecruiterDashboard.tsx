@@ -28,8 +28,8 @@ const RecruiterDashboard = () => {
     DUMMY_STUDENTS.map(student => ({
       ...student,
       workStatus: formatWorkStatus(student.workStatus || 'available'),
-      experience: 'experience' in student ? student.experience || '' : '',
-      certificates: 'certificates' in student ? student.certificates || [] : []
+      experience: student.experience || '',
+      certificates: student.certificates || []
     }) as StudentProfile[])
   );
   

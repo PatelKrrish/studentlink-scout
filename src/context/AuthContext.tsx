@@ -78,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           profilePicture: 'https://i.pravatar.cc/300?img=1',
           workStatus: 'available',
           experience: 'I have 2 years of experience with React and TypeScript.',
+          certificates: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -223,6 +224,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           collegeEmail: email,
           workStatus: 'available',
           experience: '',
+          certificates: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         };
