@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { jobOffersService } from '@/services/api';
 import { JobOffer } from '@/lib/types';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 export function useJobOffers() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [offers, setOffers] = useState<JobOffer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

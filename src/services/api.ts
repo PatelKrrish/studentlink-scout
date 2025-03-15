@@ -208,26 +208,28 @@ export const profileService = {
     // For now, we'll just return dummy data from localStorage 
     // In a real backend, this would query a database
     const storedStudents = localStorage.getItem('dummyStudents');
-    let students: StudentProfile[] = storedStudents 
+    let students: any[] = storedStudents 
       ? JSON.parse(storedStudents) 
       : [];
     
     // If no students were found in localStorage, use the constant dummy data
-    // Ensuring workStatus is properly typed
     if (students.length === 0) {
       const { DUMMY_STUDENTS } = await import('../lib/constants');
-      students = DUMMY_STUDENTS.map(student => ({
-        ...student,
-        workStatus: student.workStatus as WorkStatus
-      }));
+      students = DUMMY_STUDENTS;
       localStorage.setItem('dummyStudents', JSON.stringify(students));
     }
+    
+    // Explicitly type the workStatus to ensure it's a valid WorkStatus value
+    const typedStudents: StudentProfile[] = students.map(student => ({
+      ...student,
+      workStatus: student.workStatus as WorkStatus
+    }));
     
     // Apply filters if provided
     if (filters) {
       const { search, department, workStatus } = filters;
       
-      return students.filter(student => {
+      return typedStudents.filter(student => {
         const matchesSearch = !search || 
           student.firstName.toLowerCase().includes(search.toLowerCase()) ||
           student.lastName.toLowerCase().includes(search.toLowerCase()) ||
@@ -240,7 +242,7 @@ export const profileService = {
       });
     }
     
-    return students;
+    return typedStudents;
   },
   
   // Get student by ID
