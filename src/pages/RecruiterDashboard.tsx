@@ -1,157 +1,178 @@
+
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Search, UserIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { DUMMY_STUDENTS, ROUTES } from '@/lib/constants';
+import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { ROUTES, DUMMY_STUDENTS } from '@/lib/constants';
-import { StudentProfile } from '@/lib/types';
-
-// Helper function to ensure the correct workStatus type
-const formatWorkStatus = (status: string): 'available' | 'employed' | 'not_available' => {
-  if (status === 'available' || status === 'employed' || status === 'not_available') {
-    return status;
-  }
-  return 'available'; // Default fallback
-};
 
 const RecruiterDashboard = () => {
   const { user, recruiterProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Format the dummy data to match the StudentProfile type
-  const [students, setStudents] = useState<StudentProfile[]>(
-    DUMMY_STUDENTS.map(student => ({
-      ...student,
-      workStatus: formatWorkStatus(student.workStatus || 'available'),
-      experience: student.experience || '',
-      certificates: student.certificates || []
-    }))
-  );
-  
-  const [filteredStudents, setFilteredStudents] = useState<StudentProfile[]>(students);
-
-  // Redirect if not logged in or not a recruiter
-  if (!user) {
-    return <Navigate to={ROUTES.LOGIN} replace />;
+  // Filter students based on search term (simplified version)
+  const filteredStudents = searchTerm.trim() === ''
+    ? DUMMY_STUDENTS.slice(0, 3) // Show only first 3 in dashboard
+    : DUMMY_STUDENTS.filter(student =>
+        student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.experience.toLowerCase().includes(searchTerm.toLowerCase())
+      ).slice(0, 3);
+      
+  if (!user || !recruiterProfile) {
+    return <div>Loading...</div>;
   }
-
-  if (user.role !== 'recruiter') {
-    return <Navigate to={ROUTES.HOME} replace />;
-  }
-
-  // If recruiter isn't approved yet, show pending approval message
-  if (!recruiterProfile?.approved) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-          <div className="max-w-md text-center">
-            <h1 className="text-2xl font-bold mb-4">Approval Pending</h1>
-            <p className="text-muted-foreground mb-6">
-              Your recruiter account is currently awaiting approval by our admin team. 
-              You'll be notified once your account is approved.
-            </p>
-            <Button variant="outline" asChild>
-              <a href={`mailto:admin@college.edu`}>Contact Admin</a>
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) {
-      setFilteredStudents(students);
-      return;
-    }
-
-    const searchLower = searchTerm.toLowerCase();
-    const filtered = students.filter(student => {
-      return (
-        student.firstName.toLowerCase().includes(searchLower) ||
-        student.lastName.toLowerCase().includes(searchLower) ||
-        student.department.toLowerCase().includes(searchLower) ||
-        (student.experience && student.experience.toLowerCase().includes(searchLower))
-      );
-    });
-    
-    setFilteredStudents(filtered);
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <main className="flex-1 container py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Company Profile Card */}
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle>Company Profile</CardTitle>
+              <CardDescription>Your company details</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <Avatar className="h-24 w-24 mb-4">
+                <AvatarImage src={recruiterProfile.logoUrl} alt={recruiterProfile.companyName} />
+                <AvatarFallback>{recruiterProfile.companyName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <h3 className="text-xl font-bold">{recruiterProfile.companyName}</h3>
+              <Badge className="mt-2">{recruiterProfile.industry}</Badge>
+              <p className="text-sm text-muted-foreground mt-4">{recruiterProfile.description || 'No company description provided.'}</p>
+              <div className="w-full mt-4">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Website:</span>
+                  <a href={recruiterProfile.website} target="_blank" rel="noopener noreferrer" className="text-primary">
+                    {recruiterProfile.website}
+                  </a>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Status:</span>
+                  <span className={recruiterProfile.approved ? 'text-green-500' : 'text-amber-500'}>
+                    {recruiterProfile.approved ? 'Approved' : 'Pending Approval'}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full">
+                Edit Profile
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Quick Actions and Stats */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Recruiter Dashboard</CardTitle>
+              <CardDescription>Manage your recruitment activities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <Button asChild className="h-24 flex flex-col justify-center">
+                  <Link to={ROUTES.SEARCH_STUDENTS}>
+                    <span className="text-lg">Browse Students</span>
+                    <span className="text-xs opacity-80">Find and connect with students</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="h-24 flex flex-col justify-center">
+                  <span className="text-lg">Post Job</span>
+                  <span className="text-xs opacity-80">Create a new job posting</span>
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <span className="text-2xl font-bold">0</span>
+                  <p className="text-xs text-muted-foreground">Active Jobs</p>
+                </div>
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <span className="text-2xl font-bold">0</span>
+                  <p className="text-xs text-muted-foreground">Applications</p>
+                </div>
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <span className="text-2xl font-bold">0</span>
+                  <p className="text-xs text-muted-foreground">Interviews</p>
+                </div>
+                <div className="bg-muted rounded-lg p-4 text-center">
+                  <span className="text-2xl font-bold">0</span>
+                  <p className="text-xs text-muted-foreground">Hired</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Student Search Preview */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Find Talent</h1>
-              <p className="text-muted-foreground">Browse verified student profiles from our college</p>
+              <CardTitle>Student Talent Pool</CardTitle>
+              <CardDescription>Preview of available students</CardDescription>
             </div>
-            
-            <form onSubmit={handleSearch} className="w-full md:w-auto flex gap-2">
+            <Button asChild>
+              <Link to={ROUTES.SEARCH_STUDENTS}>View All</Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
               <Input
-                type="text"
-                placeholder="Search by name, skill, or department..."
+                placeholder="Search students by name or skills..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-80"
               />
-              <Button type="submit">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-            </form>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => (
-                <Card key={student.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                  <CardContent className="p-0">
-                    <div className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-full overflow-hidden bg-muted">
-                          {student.profilePicture ? (
-                            <img src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center">
-                              <UserIcon className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-medium">{student.firstName} {student.lastName}</h3>
-                          <p className="text-sm text-muted-foreground">Year {student.year}, {student.department.replace('_', ' ')}</p>
-                        </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {filteredStudents.length > 0 ? (
+                filteredStudents.map(student => (
+                  <Card key={student.id}>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <Avatar className="h-10 w-10 mr-2">
+                        <AvatarImage src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} />
+                        <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-base">{student.firstName} {student.lastName}</CardTitle>
+                        <CardDescription>{student.department.replace('_', ' ')}</CardDescription>
                       </div>
-                      
-                      <div className="mt-4 space-y-2">
-                        <p className="text-sm"><span className="font-medium">Status:</span> {student.workStatus.replace('_', ' ')}</p>
-                        <p className="text-sm truncate"><span className="font-medium">Email:</span> {student.collegeEmail}</p>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm line-clamp-2">{student.experience}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {student.certificates && student.certificates.slice(0, 2).map((cert, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">{cert}</Badge>
+                        ))}
                       </div>
-                      
-                      <div className="mt-4 pt-4 border-t">
-                        <Button variant="outline" size="sm" className="w-full">View Profile</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">No students match your search criteria.</p>
-              </div>
-            )}
-          </div>
-        </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" size="sm" className="w-full">View Profile</Button>
+                    </CardFooter>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-10">
+                  <p className="text-muted-foreground">No students found matching your search criteria.</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <p className="text-sm text-muted-foreground">Showing {filteredStudents.length} of {DUMMY_STUDENTS.length} students</p>
+            <Button variant="link" asChild>
+              <Link to={ROUTES.SEARCH_STUDENTS}>View all students</Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </main>
       <Footer />
     </div>

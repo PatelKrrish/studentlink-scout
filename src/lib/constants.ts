@@ -1,3 +1,4 @@
+
 // Navigation
 export const ROUTES = {
   HOME: '/',
@@ -5,6 +6,7 @@ export const ROUTES = {
   REGISTER: '/register',
   STUDENT_PROFILE: '/student/profile',
   RECRUITER_DASHBOARD: '/recruiter/dashboard',
+  SEARCH_STUDENTS: '/recruiter/students',
   ADMIN_PANEL: '/admin/panel',
 } as const;
 

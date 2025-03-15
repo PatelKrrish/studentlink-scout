@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentProfile from "./pages/StudentProfile";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
+import SearchStudents from "./pages/SearchStudents";
 import NotFound from "./pages/NotFound";
 import { ROUTES } from "./lib/constants";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path={ROUTES.REGISTER} element={<Register />} />
             <Route path={ROUTES.STUDENT_PROFILE} element={<StudentProfile />} />
             <Route path={ROUTES.RECRUITER_DASHBOARD} element={<RecruiterDashboard />} />
+            <Route path={ROUTES.SEARCH_STUDENTS} element={<SearchStudents />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
