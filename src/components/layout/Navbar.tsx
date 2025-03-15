@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { User, Menu, X, LogIn, UserPlus } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);

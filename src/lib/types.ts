@@ -26,7 +26,7 @@ export interface StudentProfile {
   profilePicture?: string;
   resume?: string;
   certificates?: string[];
-  experience?: string;
+  experience: string;
   workStatus: 'available' | 'employed' | 'not_available';
   createdAt: Date;
   updatedAt: Date;

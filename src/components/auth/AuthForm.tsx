@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -128,7 +127,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   };
 
   return (
-    <Card variant="glass" className="w-full max-w-md animate-scale-in">
+    <Card className="w-full max-w-md animate-scale-in">
       <CardHeader>
         <CardTitle className="text-2xl">{type === 'login' ? 'Login' : 'Create an Account'}</CardTitle>
         <CardDescription>
@@ -219,8 +218,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               />
             </div>
           )}
-          <Button type="submit" loading={isLoading} className="mt-2 w-full">
-            {type === 'login' ? 'Login' : 'Register'}
+          <Button type="submit" disabled={isLoading} className="mt-2 w-full">
+            {isLoading ? 'Loading...' : type === 'login' ? 'Login' : 'Register'}
           </Button>
         </form>
       </CardContent>

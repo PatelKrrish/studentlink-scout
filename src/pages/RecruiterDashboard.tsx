@@ -11,16 +11,28 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ROUTES, DUMMY_STUDENTS } from '@/lib/constants';
 import { StudentProfile } from '@/lib/types';
 
+// Helper function to ensure the correct workStatus type
+const formatWorkStatus = (status: string): 'available' | 'employed' | 'not_available' => {
+  if (status === 'available' || status === 'employed' || status === 'not_available') {
+    return status;
+  }
+  return 'available'; // Default fallback
+};
+
 const RecruiterDashboard = () => {
   const { user, recruiterProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Format the dummy data to match the StudentProfile type
   const [students, setStudents] = useState<StudentProfile[]>(
     DUMMY_STUDENTS.map(student => ({
       ...student,
-      workStatus: student.workStatus as 'available' | 'employed' | 'not_available',
-      experience: student.experience || ''
+      workStatus: formatWorkStatus(student.workStatus),
+      experience: student.experience || '',
+      certificates: student.certificates || []
     }))
   );
+  
   const [filteredStudents, setFilteredStudents] = useState<StudentProfile[]>(students);
 
   // Redirect if not logged in or not a recruiter
