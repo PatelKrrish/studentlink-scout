@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Pagination, 
   PaginationContent, 
@@ -22,7 +21,6 @@ import { StudentProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 const SearchStudents = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   // Pagination state
@@ -32,10 +30,10 @@ const SearchStudents = () => {
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
-  const [workStatusFilter, setWorkStatusFilter] = useState('');
+  const [workStatusFilter, setWorkStatusFilter] = useState<'' | 'available' | 'employed' | 'not_available'>('');
   
-  // Placeholder data from constants
-  const allStudents = DUMMY_STUDENTS;
+  // Placeholder data from constants, ensuring proper typing
+  const allStudents: StudentProfile[] = DUMMY_STUDENTS;
   
   // Filter students based on search and filter criteria
   const filteredStudents = allStudents.filter((student) => {
@@ -159,7 +157,7 @@ const SearchStudents = () => {
     return option ? option.label : value;
   };
   
-  const getWorkStatusLabel = (value: string) => {
+  const getWorkStatusLabel = (value: 'available' | 'employed' | 'not_available') => {
     const option = WORK_STATUS_OPTIONS.find(option => option.value === value);
     return option ? option.label : value;
   };
@@ -198,14 +196,17 @@ const SearchStudents = () => {
             </Select>
           </div>
           <div>
-            <Select value={workStatusFilter} onValueChange={setWorkStatusFilter}>
+            <Select 
+              value={workStatusFilter} 
+              onValueChange={(value: '' | 'available' | 'employed' | 'not_available') => setWorkStatusFilter(value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by availability" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Statuses</SelectItem>
                 {WORK_STATUS_OPTIONS.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
+                  <SelectItem key={status.value} value={status.value as 'available' | 'employed' | 'not_available'}>
                     {status.label}
                   </SelectItem>
                 ))}
