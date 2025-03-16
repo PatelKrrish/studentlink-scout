@@ -1,4 +1,3 @@
-
 // Navigation
 export const ROUTES = {
   HOME: '/',
@@ -179,5 +178,63 @@ export const DUMMY_RECRUITERS = [
     approved: false,
     createdAt: new Date(),
     updatedAt: new Date(),
+  },
+];
+
+// Add the missing DUMMY_USERS constant
+export const DUMMY_USERS = [
+  {
+    id: 'usr1',
+    email: 'john.smith@college.edu',
+    role: 'student',
+    firstName: 'John',
+    lastName: 'Smith',
+    createdAt: new Date(),
+    verified: true,
+  },
+  {
+    id: 'usr2',
+    email: 'emma.johnson@college.edu',
+    role: 'student',
+    firstName: 'Emma',
+    lastName: 'Johnson',
+    createdAt: new Date(),
+    verified: true,
+  },
+  {
+    id: 'usr3',
+    email: 'michael.brown@college.edu',
+    role: 'student',
+    firstName: 'Michael',
+    lastName: 'Brown',
+    createdAt: new Date(),
+    verified: true,
+  },
+  {
+    id: 'rec1',
+    email: 'recruiter@techinnovate.com',
+    role: 'recruiter',
+    firstName: 'Alex',
+    lastName: 'Chen',
+    createdAt: new Date(),
+    verified: true,
+  },
+  {
+    id: 'rec2',
+    email: 'recruiter@financepro.com',
+    role: 'recruiter',
+    firstName: 'Sarah',
+    lastName: 'Johnson',
+    createdAt: new Date(),
+    verified: true,
+  },
+  {
+    id: 'rec3',
+    email: 'recruiter@medihealth.com',
+    role: 'recruiter',
+    firstName: 'David',
+    lastName: 'Lee',
+    createdAt: new Date(),
+    verified: false,
   },
 ];

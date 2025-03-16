@@ -14,7 +14,7 @@ export const jobOffersService = {
     // Get recruiter profile to attach company name
     const recruiterProfile = dbUtils.query(
       dbUtils.collections.RECRUITER_PROFILES, 
-      profile => profile.userId === offer.recruiterId
+      (profile: any) => profile.userId === offer.recruiterId
     )[0];
     
     const newOffer: JobOffer = {
