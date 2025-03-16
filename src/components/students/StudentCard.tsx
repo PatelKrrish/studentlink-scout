@@ -12,11 +12,15 @@ import CreateJobOfferButton from '@/components/job-offers/CreateJobOfferButton';
 
 interface StudentCardProps {
   student: StudentProfile;
+  onViewProfile?: (student: StudentProfile) => void;
+  onConnect?: (student: StudentProfile) => void;
+  isRecruiter?: boolean;
 }
 
-const StudentCard = ({ student }: StudentCardProps) => {
+const StudentCard = ({ student, onViewProfile, onConnect, isRecruiter }: StudentCardProps) => {
   const { user } = useAuth();
-  const isRecruiter = user?.role === 'recruiter';
+  // Use the passed isRecruiter prop if provided, otherwise determine from auth context
+  const showRecruiterOptions = isRecruiter !== undefined ? isRecruiter : user?.role === 'recruiter';
   
   const workStatusColors = {
     available: 'bg-green-100 text-green-800 border-green-200',
@@ -26,6 +30,12 @@ const StudentCard = ({ student }: StudentCardProps) => {
 
   const departmentDisplay = student.department.replace('_', ' ');
   
+  const handleViewProfile = () => {
+    if (onViewProfile) {
+      onViewProfile(student);
+    }
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
@@ -72,13 +82,19 @@ const StudentCard = ({ student }: StudentCardProps) => {
         )}
       </CardContent>
       <CardFooter className="pt-2 flex-col gap-2">
-        <Button asChild variant="outline" className="w-full">
-          <Link to={`${ROUTES.STUDENT_PROFILE}/${student.id}`}>
+        {onViewProfile ? (
+          <Button variant="outline" className="w-full" onClick={handleViewProfile}>
             View Profile
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button asChild variant="outline" className="w-full">
+            <Link to={`${ROUTES.STUDENT_PROFILE}/${student.id}`}>
+              View Profile
+            </Link>
+          </Button>
+        )}
         
-        {isRecruiter && student.workStatus === 'available' && (
+        {showRecruiterOptions && student.workStatus === 'available' && (
           <CreateJobOfferButton 
             studentId={student.id} 
             studentName={`${student.firstName} ${student.lastName}`}
