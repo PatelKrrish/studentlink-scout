@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { jobOffersService } from '@/services/api';
+import { jobOffersService } from '@/services/job-offers-service';
 import { JobOffer } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,8 +39,25 @@ export function useJobOffers() {
     }
   };
 
+  // Get a single job offer by ID
+  const getOfferById = async (offerId: string) => {
+    try {
+      setLoading(true);
+      return await jobOffersService.getOfferById(offerId);
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'Could not load job offer details',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Create a new job offer (for recruiters)
-  const createOffer = async (offerData: Omit<JobOffer, 'id' | 'createdAt' | 'updatedAt' | 'status'>) => {
+  const createOffer = async (offerData: Omit<JobOffer, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'companyName'>) => {
     if (!user || user.role !== 'recruiter') {
       toast({
         title: 'Permission Denied',
@@ -110,6 +127,44 @@ export function useJobOffers() {
     }
   };
 
+  // Delete a job offer (for recruiters)
+  const deleteOffer = async (offerId: string) => {
+    if (!user || user.role !== 'recruiter') {
+      toast({
+        title: 'Permission Denied',
+        description: 'Only recruiters can delete job offers',
+        variant: 'destructive',
+      });
+      return false;
+    }
+    
+    try {
+      setLoading(true);
+      const success = await jobOffersService.deleteOffer(offerId);
+      
+      if (success) {
+        // Update local state
+        setOffers(prev => prev.filter(offer => offer.id !== offerId));
+        
+        toast({
+          title: 'Success',
+          description: 'Job offer deleted successfully',
+        });
+      }
+      
+      return success;
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete job offer',
+        variant: 'destructive',
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Load offers on component mount
   useEffect(() => {
     if (user) {
@@ -122,7 +177,9 @@ export function useJobOffers() {
     loading,
     error,
     fetchOffers,
+    getOfferById,
     createOffer,
     updateOfferStatus,
+    deleteOffer,
   };
 }

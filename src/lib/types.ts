@@ -55,10 +55,13 @@ export interface JobOffer {
   description: string;
   salary?: string;
   location: string;
+  companyName?: string;  // Added companyName
   type: 'full-time' | 'part-time' | 'internship' | 'contract';
   status: 'pending' | 'accepted' | 'declined';
   createdAt: Date;
   updatedAt: Date;
+  startDate?: Date;     // Added startDate
+  deadline?: Date;      // Added deadline
 }
 
 export interface AuthState {
