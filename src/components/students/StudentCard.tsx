@@ -1,75 +1,89 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { StudentProfile, WorkStatus } from '@/lib/types';
-import { DEPARTMENT_OPTIONS, WORK_STATUS_OPTIONS } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
+import { StudentProfile } from '@/lib/types';
+import { useAuth } from '@/context/AuthContext';
+import CreateJobOfferButton from '@/components/job-offers/CreateJobOfferButton';
 
 interface StudentCardProps {
   student: StudentProfile;
-  onViewProfile: (student: StudentProfile) => void;
-  onConnect: (student: StudentProfile) => void;
-  isRecruiter: boolean;
 }
 
-const StudentCard = ({ student, onViewProfile, onConnect, isRecruiter }: StudentCardProps) => {
-  const getDepartmentLabel = (value: string) => {
-    const option = DEPARTMENT_OPTIONS.find(option => option.value === value);
-    return option ? option.label : value;
-  };
+const StudentCard = ({ student }: StudentCardProps) => {
+  const { user } = useAuth();
+  const isRecruiter = user?.role === 'recruiter';
   
-  const getWorkStatusLabel = (value: WorkStatus) => {
-    const option = WORK_STATUS_OPTIONS.find(option => option.value === value);
-    return option ? option.label : value;
+  const workStatusColors = {
+    available: 'bg-green-100 text-green-800 border-green-200',
+    employed: 'bg-blue-100 text-blue-800 border-blue-200',
+    not_available: 'bg-red-100 text-red-800 border-red-200',
   };
 
+  const departmentDisplay = student.department.replace('_', ' ');
+  
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="flex flex-row items-center gap-4">
-        <Avatar className="h-16 w-16">
-          <AvatarImage src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} />
-          <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h3 className="text-lg font-semibold">{student.firstName} {student.lastName}</h3>
-          <p className="text-sm text-muted-foreground">{getDepartmentLabel(student.department)}</p>
-          <Badge 
-            variant={student.workStatus === 'available' ? 'default' : 
-              student.workStatus === 'employed' ? 'secondary' : 'outline'}
-            className="mt-1"
-          >
-            {getWorkStatusLabel(student.workStatus)}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <p className="line-clamp-3 text-sm">{student.experience}</p>
-        <div className="mt-4">
-          <h4 className="text-sm font-medium mb-1">Year {student.year}, Semester {student.semester}</h4>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {student.certificates && student.certificates.map((cert, index) => (
-              <Badge key={index} variant="outline">{cert}</Badge>
-            ))}
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2">
+        <div className="flex items-start gap-3">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} />
+            <AvatarFallback>{student.firstName.charAt(0)}{student.lastName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <h3 className="font-semibold leading-none">{student.firstName} {student.lastName}</h3>
+            <p className="text-sm text-muted-foreground">{departmentDisplay}</p>
+            <div className="flex flex-wrap gap-1 pt-1">
+              <Badge 
+                variant="outline" 
+                className={`text-xs ${workStatusColors[student.workStatus]}`}
+              >
+                {student.workStatus.replace('_', ' ')}
+              </Badge>
+              <Badge variant="secondary" className="text-xs">
+                Year {student.year}
+              </Badge>
+            </div>
           </div>
         </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="text-sm line-clamp-4 mt-1">{student.experience}</p>
+        {student.certificates && student.certificates.length > 0 && (
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground mb-1">Certifications:</p>
+            <div className="flex flex-wrap gap-1">
+              {student.certificates.slice(0, 3).map((cert, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {cert}
+                </Badge>
+              ))}
+              {student.certificates.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{student.certificates.length - 3} more
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="flex gap-2">
-        <Button 
-          variant="outline" 
-          onClick={() => onViewProfile(student)}
-          className="flex-1"
-        >
-          View Profile
+      <CardFooter className="pt-2 flex-col gap-2">
+        <Button asChild variant="outline" className="w-full">
+          <Link to={`${ROUTES.STUDENT_PROFILE}/${student.id}`}>
+            View Profile
+          </Link>
         </Button>
-        <Button 
-          onClick={() => onConnect(student)}
-          className="flex-1"
-          disabled={!isRecruiter}
-        >
-          Connect
-        </Button>
+        
+        {isRecruiter && student.workStatus === 'available' && (
+          <CreateJobOfferButton 
+            studentId={student.id} 
+            studentName={`${student.firstName} ${student.lastName}`}
+          />
+        )}
       </CardFooter>
     </Card>
   );
