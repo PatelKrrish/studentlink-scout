@@ -113,11 +113,12 @@ const StudentProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
+    if (validateForm() && studentProfile) {
       try {
         // Convert string values to appropriate types before updating
         const processedData = {
           ...formData,
+          id: studentProfile.id, // Add the required id property
           age: formData.age === '' ? 0 : Number(formData.age),
           year: formData.year === '' ? 0 : Number(formData.year),
           semester: formData.semester === '' ? 0 : Number(formData.semester),

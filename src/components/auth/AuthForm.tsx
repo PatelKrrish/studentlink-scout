@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { USER_ROLES, ROUTES, VALIDATION } from '@/lib/constants';
 import type { UserRole } from '@/lib/types';
 import { Github, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AuthFormProps {
   type: 'login' | 'register';
@@ -40,7 +40,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // Clear error when user types
     if (name in formErrors) {
       setFormErrors({ ...formErrors, [name]: '' });
     }
@@ -56,19 +55,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     };
     let isValid = true;
 
-    // Email validation
     if (!VALIDATION.EMAIL_REGEX.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
       isValid = false;
     }
 
-    // Password validation
     if (formData.password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
       newErrors.password = `Password must be at least ${VALIDATION.PASSWORD_MIN_LENGTH} characters`;
       isValid = false;
     }
 
-    // For registration, validate additional fields
     if (type === 'register') {
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
@@ -85,7 +81,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         isValid = false;
       }
 
-      // Special validation for student emails
       if (formData.role === USER_ROLES.STUDENT && !formData.email.endsWith('@imsnoida.com')) {
         newErrors.email = 'Students must use an IMS Noida email (@imsnoida.com)';
         isValid = false;
@@ -103,7 +98,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       if (type === 'login') {
         await login(formData.email, formData.password);
         
-        // If no error after login, navigate based on role
         if (!error) {
           navigate(ROUTES.HOME);
         }
@@ -116,7 +110,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           formData.role
         );
         
-        // Redirect based on role after registration
         if (!error) {
           if (formData.role === USER_ROLES.STUDENT) {
             navigate(ROUTES.STUDENT_PROFILE);
@@ -166,7 +159,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Social sign-in buttons */}
           <div className="grid grid-cols-2 gap-3">
             <Button 
               variant="outline" 
@@ -216,7 +208,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             </div>
           </div>
 
-          {/* Email/password form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {type === 'register' && (
               <>
