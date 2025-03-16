@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Save, Upload, User as UserIcon } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,9 +16,11 @@ import {
   SEMESTER_OPTIONS,
   VALIDATION
 } from '@/lib/constants';
+import { toast } from 'sonner';
 
 const StudentProfile = () => {
   const { user, studentProfile, updateStudentProfile, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   // Redirect if not logged in or not a student
   if (!user) {
@@ -125,8 +127,13 @@ const StudentProfile = () => {
         };
         
         await updateStudentProfile(processedData);
+        toast.success("Profile updated successfully");
+        
+        // Redirect to the job offers page after profile completion
+        navigate("/job-offers");
       } catch (error) {
         console.error('Failed to update profile', error);
+        toast.error("Failed to update profile");
       }
     }
   };

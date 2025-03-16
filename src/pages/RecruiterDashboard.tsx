@@ -1,29 +1,72 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { DUMMY_STUDENTS, ROUTES } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { INDUSTRY_OPTIONS } from '@/lib/constants';
+import { toast } from 'sonner';
 
 const RecruiterDashboard = () => {
-  const { user, recruiterProfile } = useAuth();
+  const { user, recruiterProfile, updateRecruiterProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const navigate = useNavigate();
   
-  // Filter students based on search term (simplified version)
+  // Profile edit form state
+  const [profileForm, setProfileForm] = useState({
+    companyName: recruiterProfile?.companyName || '',
+    industry: recruiterProfile?.industry || '',
+    website: recruiterProfile?.website || '',
+    description: recruiterProfile?.description || '',
+  });
+  
+  // Handle form change
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProfileForm({ ...profileForm, [name]: value });
+  };
+  
+  // Handle select change
+  const handleIndustryChange = (value: string) => {
+    setProfileForm({ ...profileForm, industry: value });
+  };
+  
+  // Handle form submission
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!recruiterProfile) return;
+    
+    try {
+      await updateRecruiterProfile({
+        ...profileForm,
+        id: recruiterProfile.id
+      });
+      
+      setDialogOpen(false);
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      console.error('Failed to update profile', error);
+      toast.error("Failed to update profile");
+    }
+  };
+  
+  // Filter students based on search term
   const filteredStudents = searchTerm.trim() === ''
-    ? DUMMY_STUDENTS.slice(0, 3) // Show only first 3 in dashboard
-    : DUMMY_STUDENTS.filter(student =>
-        student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.experience.toLowerCase().includes(searchTerm.toLowerCase())
-      ).slice(0, 3);
+    ? [] // No longer using mock data, will be fetched from backend
+    : [];
       
   if (!user || !recruiterProfile) {
     return <div>Loading...</div>;
@@ -64,9 +107,86 @@ const RecruiterDashboard = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
-                Edit Profile
-              </Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    Edit Profile
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Edit Company Profile</DialogTitle>
+                    <DialogDescription>
+                      Update your company information here.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleProfileSubmit}>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="companyName" className="text-right">
+                          Company Name
+                        </Label>
+                        <Input
+                          id="companyName"
+                          name="companyName"
+                          value={profileForm.companyName}
+                          onChange={handleProfileChange}
+                          className="col-span-3"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="industry" className="text-right">
+                          Industry
+                        </Label>
+                        <Select 
+                          value={profileForm.industry} 
+                          onValueChange={handleIndustryChange}
+                        >
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select industry" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {INDUSTRY_OPTIONS.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="website" className="text-right">
+                          Website
+                        </Label>
+                        <Input
+                          id="website"
+                          name="website"
+                          value={profileForm.website}
+                          onChange={handleProfileChange}
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="description" className="text-right">
+                          Description
+                        </Label>
+                        <Textarea
+                          id="description"
+                          name="description"
+                          value={profileForm.description}
+                          onChange={handleProfileChange}
+                          className="col-span-3"
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </CardFooter>
           </Card>
 
@@ -135,29 +255,8 @@ const RecruiterDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {filteredStudents.length > 0 ? (
                 filteredStudents.map(student => (
-                  <Card key={student.id}>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <Avatar className="h-10 w-10 mr-2">
-                        <AvatarImage src={student.profilePicture} alt={`${student.firstName} ${student.lastName}`} />
-                        <AvatarFallback>{student.firstName[0]}{student.lastName[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <CardTitle className="text-base">{student.firstName} {student.lastName}</CardTitle>
-                        <CardDescription>{student.department.replace('_', ' ')}</CardDescription>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm line-clamp-2">{student.experience}</p>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {student.certificates && student.certificates.slice(0, 2).map((cert, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">{cert}</Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button variant="outline" size="sm" className="w-full">View Profile</Button>
-                    </CardFooter>
-                  </Card>
+                  // ... student card rendering (will be empty since we've removed mock data)
+                  <div key={student.id}></div>
                 ))
               ) : (
                 <div className="col-span-3 text-center py-10">
@@ -167,7 +266,7 @@ const RecruiterDashboard = () => {
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <p className="text-sm text-muted-foreground">Showing {filteredStudents.length} of {DUMMY_STUDENTS.length} students</p>
+            <p className="text-sm text-muted-foreground">Showing {filteredStudents.length} students</p>
             <Button variant="link" asChild>
               <Link to={ROUTES.SEARCH_STUDENTS}>View all students</Link>
             </Button>
