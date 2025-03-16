@@ -2,6 +2,7 @@
 import { User, StudentProfile, RecruiterProfile, UserRole } from '@/lib/types';
 import { dbUtils } from './db-utils';
 import { USER_ROLES } from '@/lib/constants';
+import { supabase } from '@/integrations/supabase/client';
 
 // Simulate network latency
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -69,8 +70,8 @@ export const authService = {
     }
 
     // Validate student email domain
-    if (role === USER_ROLES.STUDENT && !email.endsWith('@college.edu')) {
-      throw new Error('Students must register with a college email (@college.edu)');
+    if (role === USER_ROLES.STUDENT && !email.endsWith('@imsnoida.com')) {
+      throw new Error('Students must register with an IMS Noida email (@imsnoida.com)');
     }
 
     // Create user

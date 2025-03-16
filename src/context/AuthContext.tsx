@@ -9,8 +9,8 @@ interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, role: UserRole) => Promise<void>;
   logout: () => void;
-  updateStudentProfile: (profile: Partial<StudentProfile>) => Promise<void>;
-  updateRecruiterProfile: (profile: Partial<RecruiterProfile>) => Promise<void>;
+  updateStudentProfile: (profile: Partial<StudentProfile> & { id: string }) => Promise<void>;
+  updateRecruiterProfile: (profile: Partial<RecruiterProfile> & { id: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     toast.success('Logged out successfully');
   };
 
-  const updateStudentProfile = async (profile: Partial<StudentProfile>) => {
+  const updateStudentProfile = async (profile: Partial<StudentProfile> & { id: string }) => {
     try {
       setState({ ...state, isLoading: true });
 
@@ -159,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateRecruiterProfile = async (profile: Partial<RecruiterProfile>) => {
+  const updateRecruiterProfile = async (profile: Partial<RecruiterProfile> & { id: string }) => {
     try {
       setState({ ...state, isLoading: true });
 
