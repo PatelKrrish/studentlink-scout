@@ -5,9 +5,10 @@ import Footer from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { StudentProfile, WorkStatus } from '@/lib/types';
-import { profileService, jobOffersService } from '@/services/api';
+import { profileService } from '@/services/profile-service';
+import { jobOffersService } from '@/services/job-offers-service';
 
-// Import new components
+// Import components
 import StudentSearchFilters from '@/components/students/StudentSearchFilters';
 import StudentResults from '@/components/students/StudentResults';
 import StudentPagination from '@/components/students/StudentPagination';

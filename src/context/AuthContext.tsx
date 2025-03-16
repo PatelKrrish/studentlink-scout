@@ -1,9 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthState, User, StudentProfile, RecruiterProfile, UserRole } from '../lib/types';
 import { USER_ROLES } from '../lib/constants';
 import { toast } from 'sonner';
-import { authService, profileService } from '../services/api';
+import { authService } from '../services/auth-service';
+import { profileService } from '../services/profile-service';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
