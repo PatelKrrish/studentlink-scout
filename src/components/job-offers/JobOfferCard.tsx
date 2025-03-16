@@ -72,7 +72,7 @@ const JobOfferCard = ({ offer, onAccept, onDecline, onView, isStudent }: JobOffe
             {offer.status === 'pending' && (
               <>
                 <Button
-                  variant="default"
+                  variant="primary"
                   className="flex-1"
                   onClick={() => onAccept?.(offer.id)}
                   disabled={offer.status !== 'pending'}
