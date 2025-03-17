@@ -11,23 +11,20 @@ export const dbUtils = {
     JOB_OFFERS: 'db_job_offers',
   },
 
-  // Initialize database with seed data if empty
+  // Initialize database with empty collections if needed
   initDatabase: () => {
     // Check if database is already initialized
     const isInitialized = localStorage.getItem('db_initialized');
     if (isInitialized) return;
 
-    // Import seed data
-    import('../lib/constants').then(({ DUMMY_STUDENTS, DUMMY_USERS, DUMMY_RECRUITERS }) => {
-      // Initialize collections
-      localStorage.setItem(dbUtils.collections.USERS, JSON.stringify(DUMMY_USERS || []));
-      localStorage.setItem(dbUtils.collections.STUDENT_PROFILES, JSON.stringify(DUMMY_STUDENTS || []));
-      localStorage.setItem(dbUtils.collections.RECRUITER_PROFILES, JSON.stringify(DUMMY_RECRUITERS || []));
-      localStorage.setItem(dbUtils.collections.JOB_OFFERS, JSON.stringify([]));
-      
-      // Mark as initialized
-      localStorage.setItem('db_initialized', 'true');
-    });
+    // Initialize collections with empty arrays
+    localStorage.setItem(dbUtils.collections.USERS, JSON.stringify([]));
+    localStorage.setItem(dbUtils.collections.STUDENT_PROFILES, JSON.stringify([]));
+    localStorage.setItem(dbUtils.collections.RECRUITER_PROFILES, JSON.stringify([]));
+    localStorage.setItem(dbUtils.collections.JOB_OFFERS, JSON.stringify([]));
+    
+    // Mark as initialized
+    localStorage.setItem('db_initialized', 'true');
   },
 
   // Generic CRUD operations
