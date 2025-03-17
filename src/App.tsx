@@ -12,6 +12,10 @@ import StudentProfile from "./pages/StudentProfile";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import SearchStudents from "./pages/SearchStudents";
 import JobOffers from "./pages/JobOffers";
+import Dashboard from "./pages/Dashboard";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 import NotFound from "./pages/NotFound";
 import { ROUTES } from "./lib/constants";
 
@@ -32,6 +36,10 @@ const App = () => (
             <Route path={ROUTES.RECRUITER_DASHBOARD} element={<RecruiterDashboard />} />
             <Route path={ROUTES.SEARCH_STUDENTS} element={<SearchStudents />} />
             <Route path="/job-offers" element={<JobOffers />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { USER_ROLES, ROUTES, VALIDATION } from '@/lib/constants';
+import PasswordInput from './PasswordInput';
 import type { UserRole } from '@/lib/types';
 import { Github, Mail } from 'lucide-react';
 import { toast } from 'sonner';
@@ -60,12 +62,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       isValid = false;
     }
 
-    if (formData.password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
-      newErrors.password = `Password must be at least ${VALIDATION.PASSWORD_MIN_LENGTH} characters`;
-      isValid = false;
-    }
-
     if (type === 'register') {
+      if (!VALIDATION.PASSWORD_REGEX.test(formData.password)) {
+        newErrors.password = 'Password does not meet requirements';
+        isValid = false;
+      }
+
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match';
         isValid = false;
@@ -83,6 +85,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
       if (formData.role === USER_ROLES.STUDENT && !formData.email.endsWith('@imsnoida.com')) {
         newErrors.email = 'Students must use an IMS Noida email (@imsnoida.com)';
+        isValid = false;
+      }
+    } else {
+      // For login, just check if password is not empty
+      if (formData.password.length === 0) {
+        newErrors.password = 'Password is required';
         isValid = false;
       }
     }
@@ -264,21 +272,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               />
             </div>
             <div>
-              <Input
-                type="password"
+              <PasswordInput
                 name="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
                 error={!!formErrors.password}
                 helperText={formErrors.password}
+                showRequirements={type === 'register'}
                 required
               />
             </div>
             {type === 'register' && (
               <div>
-                <Input
-                  type="password"
+                <PasswordInput
                   name="confirmPassword"
                   placeholder="Confirm Password"
                   value={formData.confirmPassword}
@@ -287,6 +294,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   helperText={formErrors.confirmPassword}
                   required
                 />
+              </div>
+            )}
+            {type === 'login' && (
+              <div className="text-right">
+                <Link
+                  to={ROUTES.FORGOT_PASSWORD}
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
             )}
             <Button type="submit" disabled={isLoading} className="mt-2 w-full">

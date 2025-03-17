@@ -8,4 +8,8 @@ export const ROUTES = {
   RECRUITER_DASHBOARD: '/recruiter/dashboard',
   SEARCH_STUDENTS: '/recruiter/students',
   ADMIN_PANEL: '/admin/panel',
+  DASHBOARD: '/dashboard',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  VERIFY_EMAIL: '/verify-email',
 } as const;
