@@ -50,6 +50,9 @@ const Footer = () => {
           <p className="text-sm text-secondary-foreground/70">
             &copy; {new Date().getFullYear()} TalentBridge. All rights reserved.
           </p>
+          <p className="text-sm text-secondary-foreground/70 mt-2">
+            Powered by The MERN Technologies
+          </p>
         </div>
       </div>
     </footer>

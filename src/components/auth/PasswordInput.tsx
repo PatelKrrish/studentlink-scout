@@ -13,6 +13,7 @@ interface PasswordInputProps {
   helperText?: string;
   showRequirements?: boolean;
   required?: boolean;
+  showToggle?: boolean;
 }
 
 const PasswordInput = ({
@@ -24,6 +25,7 @@ const PasswordInput = ({
   helperText,
   showRequirements = false,
   required = true,
+  showToggle = true,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -61,14 +63,16 @@ const PasswordInput = ({
           onBlur={handleBlur}
           className="pr-10"
         />
-        <button
-          type="button"
-          onClick={toggleShowPassword}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
-        >
-          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
+        {showToggle && (
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+          </button>
+        )}
       </div>
       
       {error && helperText && (

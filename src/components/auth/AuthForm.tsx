@@ -110,22 +110,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           navigate(ROUTES.HOME);
         }
       } else {
-        await register(
-          formData.email,
-          formData.password,
-          formData.firstName,
-          formData.lastName,
-          formData.role
-        );
-        
-        if (!error) {
-          if (formData.role === USER_ROLES.STUDENT) {
-            navigate(ROUTES.STUDENT_PROFILE);
-          } else if (formData.role === USER_ROLES.RECRUITER) {
-            navigate(ROUTES.RECRUITER_DASHBOARD);
-          } else {
-            navigate(ROUTES.HOME);
+        // For registration, force email verification before allowing signup
+        try {
+          const { data, error: signUpError } = await supabase.auth.signUp({
+            email: formData.email,
+            password: formData.password,
+            options: {
+              data: {
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                role: formData.role
+              },
+              emailRedirectTo: `${window.location.origin}/verify-email`
+            }
+          });
+          
+          if (signUpError) throw signUpError;
+          
+          if (data.user) {
+            toast.success('Verification email sent. Please check your inbox.');
+            navigate(ROUTES.VERIFY_EMAIL);
           }
+        } catch (err: any) {
+          console.error('Registration error:', err);
+          toast.error(err.message || 'Registration failed');
         }
       }
     }
@@ -281,6 +289,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 helperText={formErrors.password}
                 showRequirements={type === 'register'}
                 required
+                showToggle={true}
               />
             </div>
             {type === 'register' && (
@@ -293,6 +302,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   error={!!formErrors.confirmPassword}
                   helperText={formErrors.confirmPassword}
                   required
+                  showToggle={false}
                 />
               </div>
             )}

@@ -17,11 +17,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { INDUSTRY_OPTIONS } from '@/lib/constants';
 import { toast } from 'sonner';
+import JobOffersContainer from '@/components/job-offers/JobOffersContainer';
+import { useNavigate } from 'react-router-dom';
 
 const RecruiterDashboard = () => {
   const { user, recruiterProfile, updateRecruiterProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const navigate = useNavigate();
   
   // Profile edit form state
@@ -100,9 +103,16 @@ const RecruiterDashboard = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Status:</span>
-                  <span className={recruiterProfile.approved ? 'text-green-500' : 'text-amber-500'}>
-                    {recruiterProfile.approved ? 'Approved' : 'Pending Approval'}
-                  </span>
+                  {recruiterProfile.approved ? (
+                    <span className="text-green-500">Approved</span>
+                  ) : (
+                    <button 
+                      onClick={() => setApprovalDialogOpen(true)}
+                      className="text-amber-500 hover:text-amber-600 hover:underline"
+                    >
+                      Pending Approval
+                    </button>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -187,6 +197,28 @@ const RecruiterDashboard = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+              
+              {/* Approval Dialog */}
+              <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Pending Approval</DialogTitle>
+                    <DialogDescription>
+                      Your recruiter account is pending approval from the college administrators.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <p className="mb-4">For quicker approval, please contact the college admin team with your company details:</p>
+                    <div className="bg-muted p-4 rounded-md">
+                      <p><strong>Email:</strong> admin@talentbridge.edu</p>
+                      <p><strong>Phone:</strong> +1 (555) 987-6543</p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={() => setApprovalDialogOpen(false)}>Close</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardFooter>
           </Card>
 
@@ -204,10 +236,110 @@ const RecruiterDashboard = () => {
                     <span className="text-xs opacity-80">Find and connect with students</span>
                   </Link>
                 </Button>
-                <Button variant="outline" className="h-24 flex flex-col justify-center">
-                  <span className="text-lg">Post Job</span>
-                  <span className="text-xs opacity-80">Create a new job posting</span>
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="h-24 flex flex-col justify-center">
+                      <span className="text-lg">Post Job</span>
+                      <span className="text-xs opacity-80">Create a new job posting</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Create New Job Posting</DialogTitle>
+                      <DialogDescription>
+                        Fill out the details below to post a new job or internship opportunity.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="jobTitle" className="text-right">
+                          Job Title
+                        </Label>
+                        <Input
+                          id="jobTitle"
+                          placeholder="e.g. Software Engineer Intern"
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="jobType" className="text-right">
+                          Job Type
+                        </Label>
+                        <Select>
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select job type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full-time">Full-time</SelectItem>
+                            <SelectItem value="part-time">Part-time</SelectItem>
+                            <SelectItem value="internship">Internship</SelectItem>
+                            <SelectItem value="contract">Contract</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="location" className="text-right">
+                          Location
+                        </Label>
+                        <Input
+                          id="location"
+                          placeholder="e.g. New York, NY or Remote"
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="salary" className="text-right">
+                          Salary Range
+                        </Label>
+                        <Input
+                          id="salary"
+                          placeholder="e.g. $50,000 - $70,000"
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-start gap-4">
+                        <Label htmlFor="description" className="text-right pt-2">
+                          Description
+                        </Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Job description, responsibilities, and requirements..."
+                          className="col-span-3"
+                          rows={6}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="skills" className="text-right">
+                          Required Skills
+                        </Label>
+                        <Input
+                          id="skills"
+                          placeholder="e.g. React, Node.js, SQL (comma separated)"
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="applyUrl" className="text-right">
+                          Apply URL
+                        </Label>
+                        <Input
+                          id="applyUrl"
+                          placeholder="https://your-company.com/careers/job-id"
+                          className="col-span-3"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        onClick={() => {
+                          toast.success("Job posted successfully!");
+                        }}
+                      >
+                        Post Job
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -232,46 +364,58 @@ const RecruiterDashboard = () => {
           </Card>
         </div>
 
-        {/* Student Search Preview */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Student Talent Pool</CardTitle>
-              <CardDescription>Preview of available students</CardDescription>
-            </div>
-            <Button asChild>
-              <Link to={ROUTES.SEARCH_STUDENTS}>View All</Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <Input
-                placeholder="Search students by name or skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map(student => (
-                  // ... student card rendering (will be empty since we've removed mock data)
-                  <div key={student.id}></div>
-                ))
-              ) : (
-                <div className="col-span-3 text-center py-10">
-                  <p className="text-muted-foreground">No students found matching your search criteria.</p>
+        <Tabs defaultValue="students" className="w-full">
+          <TabsList className="w-full max-w-md mx-auto mb-6">
+            <TabsTrigger value="students" className="flex-1">Talent Pool</TabsTrigger>
+            <TabsTrigger value="jobs" className="flex-1">My Job Postings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="students" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Student Talent Pool</CardTitle>
+                  <CardDescription>Find qualified candidates for your positions</CardDescription>
                 </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <p className="text-sm text-muted-foreground">Showing {filteredStudents.length} students</p>
-            <Button variant="link" asChild>
-              <Link to={ROUTES.SEARCH_STUDENTS}>View all students</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+                <Button asChild>
+                  <Link to={ROUTES.SEARCH_STUDENTS}>Browse All</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <Input
+                    placeholder="Search students by name or skills..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {filteredStudents.length > 0 ? (
+                    filteredStudents.map(student => (
+                      <div key={student.id}></div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-10">
+                      <p className="text-muted-foreground">Connect with talented engineers in the student pool.</p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4"
+                        onClick={() => navigate(ROUTES.SEARCH_STUDENTS)}
+                      >
+                        Browse Student Profiles
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="jobs" className="mt-6">
+            <JobOffersContainer />
+          </TabsContent>
+        </Tabs>
       </main>
       <Footer />
     </div>
