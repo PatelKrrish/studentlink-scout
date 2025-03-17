@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { INDUSTRY_OPTIONS } from '@/lib/constants';
 import { toast } from 'sonner';
 import JobOffersContainer from '@/components/job-offers/JobOffersContainer';
-import { useNavigate } from 'react-router-dom';
 
 const RecruiterDashboard = () => {
   const { user, recruiterProfile, updateRecruiterProfile } = useAuth();
