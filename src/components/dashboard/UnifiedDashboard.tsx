@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import StudentSearchFilters from '@/components/students/StudentSearchFilters';
 import StudentResults from '@/components/students/StudentResults';
 import { StudentProfile, WorkStatus } from '@/lib/types';
-import { JobOffersContainer } from '@/components/job-offers/JobOffersContainer';
+import JobOffersContainer from '@/components/job-offers/JobOffersContainer';
 import { Search } from 'lucide-react';
 
 const UnifiedDashboard = () => {
