@@ -1,10 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useJobOffers } from '@/hooks/use-job-offers';
 import { JobOffer } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import JobOffersGrid from './JobOffersGrid';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import JobOfferModal from './JobOfferModal';
 
 const JobOffersContainer = () => {
   const { user } = useAuth();
@@ -16,9 +19,16 @@ const JobOffersContainer = () => {
     loading,
     error,
     updateOfferStatus,
+    createOffer
   } = useJobOffers();
   
   const [selectedOffer, setSelectedOffer] = useState<JobOffer | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Log offers for debugging
+  useEffect(() => {
+    console.log('Current job offers:', offers);
+  }, [offers]);
 
   if (error) {
     return (
@@ -68,16 +78,57 @@ const JobOffersContainer = () => {
       description: `Viewing details for ${offer.position} position`,
     });
   };
+  
+  const handleCreateOffer = async (data: any) => {
+    if (!user) return;
+    
+    const offerData = {
+      recruiterId: user.id,
+      studentId: data.studentId || 'student-123', // Default for testing
+      position: data.position,
+      description: data.description,
+      salary: data.salary,
+      location: data.location,
+      type: data.type as 'full-time' | 'part-time' | 'internship' | 'contract',
+    };
+    
+    try {
+      await createOffer(offerData);
+      setIsModalOpen(false);
+      toast({
+        title: 'Success',
+        description: 'Job offer created successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create job offer',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Job Offers</h2>
-        <p className="text-muted-foreground">
-          {isStudent
-            ? 'Review and respond to your job offers from recruiters.'
-            : 'Manage your job offers to students.'}
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">Job Offers</h2>
+          <p className="text-muted-foreground">
+            {isStudent
+              ? 'Review and respond to your job offers from recruiters.'
+              : 'Manage your job offers to students.'}
+          </p>
+        </div>
+        
+        {!isStudent && (
+          <Button 
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Create Job Offer</span>
+          </Button>
+        )}
       </div>
 
       <JobOffersGrid
@@ -87,6 +138,13 @@ const JobOffersContainer = () => {
         onDeclineOffer={isStudent ? handleDeclineOffer : undefined}
         onViewOffer={handleViewOffer}
         isStudent={isStudent}
+      />
+      
+      <JobOfferModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        studentId="student-123" // Default for testing
+        onSubmit={handleCreateOffer}
       />
     </div>
   );

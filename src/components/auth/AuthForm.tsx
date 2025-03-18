@@ -104,10 +104,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     
     if (validateForm()) {
       if (type === 'login') {
-        await login(formData.email, formData.password);
-        
-        if (!error) {
-          navigate(ROUTES.HOME);
+        try {
+          await login(formData.email, formData.password);
+          // Login successful, navigation will be handled by the auth context
+        } catch (err) {
+          // Login failed, but we don't need to navigate as the error will be displayed in the form
+          console.error('Login error:', err);
         }
       } else {
         // For registration, force email verification before allowing signup
@@ -143,7 +145,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/verify-email`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
       });
+      
       if (error) throw error;
     } catch (error) {
       console.error('Error signing in with Google:', error);
@@ -155,6 +165,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/verify-email`
+        }
       });
       if (error) throw error;
     } catch (error) {
