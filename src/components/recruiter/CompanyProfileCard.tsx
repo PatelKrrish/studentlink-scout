@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { INDUSTRY_OPTIONS } from '@/lib/constants';
 import { RecruiterProfile } from '@/lib/types';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CompanyProfileCardProps {
   recruiterProfile: RecruiterProfile;
@@ -52,10 +53,16 @@ const CompanyProfileCard = ({ recruiterProfile, updateRecruiterProfile }: Compan
       });
       
       setDialogOpen(false);
-      toast.success("Profile updated successfully");
+      toast("Profile updated successfully");
     } catch (error) {
       console.error('Failed to update profile', error);
-      toast.error("Failed to update profile");
+      toast("Failed to update profile", {
+        description: "An error occurred while updating your profile.",
+        action: {
+          label: "Try Again",
+          onClick: () => setDialogOpen(true)
+        }
+      });
     }
   };
 
