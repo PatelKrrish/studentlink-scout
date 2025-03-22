@@ -6,4 +6,5 @@ export const VALIDATION = {
   NAME_MAX_LENGTH: 50,
   EMAIL_REGEX: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   PHONE_REGEX: /^\+?[0-9]{10,15}$/,
+  PASSWORD_REGEX: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
 };
