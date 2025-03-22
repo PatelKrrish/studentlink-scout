@@ -1,55 +1,109 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ROUTES } from '@/lib/constants';
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import StudentSearchFilters from '@/components/students/StudentSearchFilters';
+import StudentResults from '@/components/students/StudentResults';
+import StudentResultsInfo from '@/components/students/StudentResultsInfo';
+import StudentPagination from '@/components/students/StudentPagination';
+import { StudentProfile, WorkStatus } from '@/lib/types';
+import { profileService } from '@/services/profile-service';
+import { useToast } from '@/hooks/use-toast';
 
 const TalentPoolTab = () => {
+  // Student search state
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
-  const filteredStudents = searchTerm.trim() === '' ? [] : [];
+  const [departmentFilter, setDepartmentFilter] = useState('');
+  const [workStatusFilter, setWorkStatusFilter] = useState<'' | WorkStatus>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  
+  const studentsPerPage = 6;
+  
+  // Load student data
+  useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        setLoading(true);
+        const fetchedStudents = await profileService.getAllStudents({
+          search: searchTerm,
+          department: departmentFilter,
+          workStatus: workStatusFilter
+        });
+        setStudents(fetchedStudents);
+      } catch (error) {
+        console.error('Error loading students:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load student data. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadStudents();
+  }, [searchTerm, departmentFilter, workStatusFilter, toast]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, departmentFilter, workStatusFilter]);
+
+  const handleViewProfile = (student: StudentProfile) => {
+    window.open(`/student/profile/${student.id}`, '_blank');
+  };
+
+  const handleConnect = (student: StudentProfile) => {
+    toast({
+      title: 'Connection Request Sent',
+      description: `Request sent to ${student.firstName} ${student.lastName}`,
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Student Talent Pool</CardTitle>
-          <CardDescription>Find qualified candidates for your positions</CardDescription>
-        </div>
-        <Button asChild>
-          <Link to={ROUTES.SEARCH_STUDENTS}>Browse All</Link>
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4">
-          <Input
-            placeholder="Search students by name or skills..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {filteredStudents.length > 0 ? (
-            filteredStudents.map(student => (
-              <div key={student.id}></div>
-            ))
-          ) : (
-            <div className="col-span-3 text-center py-10">
-              <p className="text-muted-foreground">Connect with talented engineers in the student pool.</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => navigate(ROUTES.SEARCH_STUDENTS)}
-              >
-                Browse Student Profiles
-              </Button>
-            </div>
-          )}
-        </div>
-      </CardContent>
+    <Card className="p-6">
+      <StudentSearchFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        departmentFilter={departmentFilter}
+        setDepartmentFilter={setDepartmentFilter}
+        workStatusFilter={workStatusFilter}
+        setWorkStatusFilter={setWorkStatusFilter}
+      />
+      
+      <StudentResultsInfo
+        loading={loading}
+        totalStudents={students.length}
+        currentPage={currentPage}
+        studentsPerPage={studentsPerPage}
+      />
+      
+      <StudentResults
+        loading={loading}
+        students={students}
+        currentPage={currentPage}
+        studentsPerPage={studentsPerPage}
+        onViewProfile={handleViewProfile}
+        onConnect={handleConnect}
+        isRecruiter={true}
+      />
+      
+      {students.length > studentsPerPage && (
+        <StudentPagination
+          currentPage={currentPage}
+          totalItems={students.length}
+          itemsPerPage={studentsPerPage}
+          onPageChange={handlePageChange}
+        />
+      )}
     </Card>
   );
 };
