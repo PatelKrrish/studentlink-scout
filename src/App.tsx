@@ -35,7 +35,7 @@ const App = () => (
             <Route path={ROUTES.STUDENT_PROFILE} element={<StudentProfile />} />
             <Route path={ROUTES.RECRUITER_DASHBOARD} element={<RecruiterDashboard />} />
             <Route path={ROUTES.SEARCH_STUDENTS} element={<SearchStudents />} />
-            <Route path="/job-offers" element={<JobOffers />} />
+            <Route path={ROUTES.JOB_OFFERS} element={<JobOffers />} />
             <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
             <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
             <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />

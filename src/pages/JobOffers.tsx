@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import JobOffersContainer from '@/components/job-offers/JobOffersContainer';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '@/lib/constants';
 

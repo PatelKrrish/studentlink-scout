@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/constants';
 import { StudentProfile } from '@/lib/types';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import CreateJobOfferButton from '@/components/job-offers/CreateJobOfferButton';
 
 interface StudentCardProps {

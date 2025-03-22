@@ -3,7 +3,7 @@ import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import ProfilePhotoCard from '@/components/student-profile/ProfilePhotoCard';
 import ProfileForm from '@/components/student-profile/ProfileForm';
 import ResumeUploadCard from '@/components/student-profile/ResumeUploadCard';
@@ -29,7 +29,7 @@ const StudentProfile = () => {
       toast.success("Profile updated successfully");
       
       // Redirect to the job offers page after profile completion
-      navigate("/job-offers");
+      navigate(ROUTES.JOB_OFFERS);
     } catch (error) {
       console.error('Failed to update profile', error);
       toast.error("Failed to update profile");

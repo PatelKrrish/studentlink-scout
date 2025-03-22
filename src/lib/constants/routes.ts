@@ -12,4 +12,5 @@ export const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
   VERIFY_EMAIL: '/verify-email',
+  JOB_OFFERS: '/job-offers',
 } as const;

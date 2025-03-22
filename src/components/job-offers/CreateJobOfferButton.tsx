@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import JobOfferModal from './JobOfferModal';
 import { useJobOffers } from '@/hooks/use-job-offers';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 
 interface CreateJobOfferButtonProps {
   studentId: string;
@@ -35,6 +35,7 @@ const CreateJobOfferButton = ({ studentId, studentName }: CreateJobOfferButtonPr
     };
     
     await createOffer(offerData);
+    setIsModalOpen(false);
   };
 
   return (

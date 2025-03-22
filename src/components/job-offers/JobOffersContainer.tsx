@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useJobOffers } from '@/hooks/use-job-offers';
 import { JobOffer } from '@/lib/types';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { useToast } from '@/hooks/use-toast';
 import JobOffersGrid from './JobOffersGrid';
 import { Button } from '@/components/ui/button';
