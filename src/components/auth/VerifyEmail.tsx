@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,37 +20,52 @@ const VerifyEmail = () => {
   useEffect(() => {
     const handleEmailVerification = async () => {
       try {
-        // Check for token in URL
+        // Parse the URL for tokens
+        // Supabase redirects with tokens in the hash fragment
         const hashParams = new URLSearchParams(location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
         const type = hashParams.get('type');
 
-        // If we have tokens in the URL, we need to set them
+        console.log("URL hash:", location.hash);
+        console.log("Type:", type);
+        console.log("Access token exists:", !!accessToken);
+        console.log("Refresh token exists:", !!refreshToken);
+
+        // If we have tokens in the URL hash, set them in the Supabase session
         if (accessToken && refreshToken && type === 'email_verification') {
+          console.log("Setting session with tokens from URL");
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           });
           
-          if (sessionError) throw sessionError;
+          if (sessionError) {
+            console.error("Session error:", sessionError);
+            throw sessionError;
+          }
+          
+          // Refresh the session to get updated user data
+          console.log("Refreshing session");
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError) {
+            console.error("Refresh error:", refreshError);
+            throw refreshError;
+          }
+        } else {
+          console.log("No tokens found in URL or not an email verification");
         }
 
-        // Refresh the session to get the latest user data
-        const { error: refreshError } = await supabase.auth.refreshSession();
-        
-        if (refreshError) {
-          throw refreshError;
-        }
-
-        // Check if the user is now verified
+        // Check the current session status
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session:", session);
         
         if (session?.user?.email_confirmed_at) {
           setIsSuccess(true);
           toast.success('Email verified successfully');
         } else {
-          setError('Email verification failed. The link may have expired.');
+          setError('Email verification failed. The link may have expired or is invalid.');
         }
       } catch (err: any) {
         console.error('Email verification error:', err);

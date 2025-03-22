@@ -17,6 +17,8 @@ export const useAuthSession = () => {
         // Get current session from Supabase
         const { data: { session } } = await supabase.auth.getSession();
         
+        console.log('Initial session check:', session ? 'Session found' : 'No session');
+        
         if (session?.user) {
           // We have a Supabase session, update local state
           const user = {
@@ -28,6 +30,8 @@ export const useAuthSession = () => {
             createdAt: new Date(session.user.created_at),
             verified: !!session.user.email_confirmed_at,
           };
+          
+          console.log('User verification status:', !!session.user.email_confirmed_at);
           
           // Store in localStorage for compatibility with existing code
           localStorage.setItem('user', JSON.stringify(user));
