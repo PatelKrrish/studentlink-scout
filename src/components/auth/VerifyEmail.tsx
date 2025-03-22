@@ -1,24 +1,42 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/constants';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CheckCircle, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/context/auth';
 
 const VerifyEmail = () => {
   const [isVerifying, setIsVerifying] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleEmailVerification = async () => {
       try {
-        // Supabase handles the email verification automatically
-        // We just need to refresh the session
+        // Check for token in URL
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const type = hashParams.get('type');
+
+        // If we have tokens in the URL, we need to set them
+        if (accessToken && refreshToken && type === 'email_verification') {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) throw sessionError;
+        }
+
+        // Refresh the session to get the latest user data
         const { error: refreshError } = await supabase.auth.refreshSession();
         
         if (refreshError) {
@@ -44,10 +62,14 @@ const VerifyEmail = () => {
     };
 
     handleEmailVerification();
-  }, [navigate]);
+  }, [location.hash, navigate]);
 
   const goToLogin = () => {
     navigate(ROUTES.LOGIN);
+  };
+
+  const goToDashboard = () => {
+    navigate(ROUTES.DASHBOARD);
   };
 
   const resendVerification = async () => {
@@ -94,8 +116,8 @@ const VerifyEmail = () => {
           <div className="space-y-4 py-4">
             <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
             <p className="text-green-600">Your email has been verified successfully!</p>
-            <Button onClick={goToLogin} className="mt-4">
-              Continue to Login
+            <Button onClick={user ? goToDashboard : goToLogin} className="mt-4">
+              {user ? 'Go to Dashboard' : 'Continue to Login'}
             </Button>
           </div>
         ) : (
