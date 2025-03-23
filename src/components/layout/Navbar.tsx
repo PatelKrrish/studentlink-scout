@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -49,15 +50,6 @@ const Navbar = () => {
           >
             Home
           </Link>
-          <Link
-            to={ROUTES.COMMUNITY}
-            className={cn(
-              "transition-colors hover:text-foreground/80",
-              pathname === ROUTES.COMMUNITY ? "text-foreground font-medium" : "text-foreground/60"
-            )}
-          >
-            Community
-          </Link>
           
           {user && (
             <>
@@ -99,7 +91,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Button variant="outline" size="sm" onClick={() => logout(() => navigate(ROUTES.HOME))}>
+              <Button variant="outline" size="sm" onClick={() => logout()}>
                 Logout
               </Button>
             </>
@@ -137,16 +129,6 @@ const Navbar = () => {
                   onClick={closeMobileMenu}
                 >
                   Home
-                </Link>
-                <Link
-                  to={ROUTES.COMMUNITY}
-                  className={cn(
-                    "flex items-center gap-2 transition-colors hover:text-foreground/80",
-                    pathname === ROUTES.COMMUNITY ? "text-foreground font-medium" : "text-foreground/60"
-                  )}
-                  onClick={closeMobileMenu}
-                >
-                  Community
                 </Link>
                 {user && (
                   <>
@@ -189,7 +171,7 @@ const Navbar = () => {
               </nav>
               <div className="mt-8">
                 {user ? (
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => logout(() => {closeMobileMenu(); navigate(ROUTES.HOME);})}>
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => logout()}>
                     Logout
                   </Button>
                 ) : (

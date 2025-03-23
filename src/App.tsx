@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -11,14 +12,13 @@ import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
 import StudentProfile from '@/pages/StudentProfile';
 import JobOffers from '@/pages/JobOffers';
-import ForgotPasswordPage from '@/pages/ForgotPassword';
-import ResetPasswordPage from '@/pages/ResetPassword';
-import VerifyEmailPage from '@/pages/VerifyEmail';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import VerifyEmailPage from '@/pages/VerifyEmailPage';
 import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import RecruiterDashboard from '@/pages/RecruiterDashboard';
 import SearchStudents from '@/pages/SearchStudents';
-import CommunityBrowse from '@/pages/CommunityBrowse';
 
 function App() {
   const { isLoading } = useAuth();
@@ -49,9 +49,6 @@ function App() {
           <Route path={ROUTES.RECRUITER_DASHBOARD} element={<RecruiterDashboard />} />
           <Route path={ROUTES.SEARCH_STUDENTS} element={<SearchStudents />} />
         </Route>
-        
-        {/* New community route - publicly accessible */}
-        <Route path="/community" element={<CommunityBrowse />} />
         
         {/* Not found route */}
         <Route path="*" element={<NotFound />} />
