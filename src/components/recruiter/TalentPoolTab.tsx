@@ -68,6 +68,9 @@ const TalentPoolTab = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Calculate total pages for pagination
+  const totalPages = Math.ceil(students.length / studentsPerPage);
+
   return (
     <Card className="p-6">
       <StudentSearchFilters
@@ -99,8 +102,7 @@ const TalentPoolTab = () => {
       {students.length > studentsPerPage && (
         <StudentPagination
           currentPage={currentPage}
-          totalItems={students.length}
-          itemsPerPage={studentsPerPage}
+          totalPages={totalPages}
           onPageChange={handlePageChange}
         />
       )}
