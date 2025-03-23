@@ -1,130 +1,210 @@
-
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { User, Menu, X, LogIn, UserPlus } from 'lucide-react';
-import { ROUTES } from '@/lib/constants';
-import { useAuth } from '@/context/AuthContext';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Menu } from 'lucide-react';
+import { ROUTES } from '@/lib/constants';
 
-export const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const Navbar = () => {
   const { user, logout } = useAuth();
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const getLinkClassName = (path: string) => {
-    const baseClass = 'px-4 py-2 rounded-lg transition-all duration-300';
-    return location.pathname === path
-      ? `${baseClass} bg-primary/10 text-primary font-medium`
-      : `${baseClass} hover:bg-secondary text-foreground/80 hover:text-foreground`;
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const renderAuthLinks = () => {
-    if (user) {
-      let profileLink = '';
-      let profileText = '';
-
-      if (user.role === 'student') {
-        profileLink = ROUTES.STUDENT_PROFILE;
-        profileText = 'Profile';
-      } else if (user.role === 'recruiter') {
-        profileLink = ROUTES.RECRUITER_DASHBOARD;
-        profileText = 'Dashboard';
-      } else if (user.role === 'admin') {
-        profileLink = ROUTES.ADMIN_PANEL;
-        profileText = 'Admin Panel';
-      }
-
-      return (
-        <>
-          <Link to={profileLink} className={getLinkClassName(profileLink)}>
-            <User className="w-4 h-4 mr-2" />
-            {profileText}
-          </Link>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={logout}
-            className="ml-2"
-          >
-            Logout
-          </Button>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <Link to={ROUTES.LOGIN} className={getLinkClassName(ROUTES.LOGIN)}>
-          <LogIn className="w-4 h-4 mr-2" />
-          Login
-        </Link>
-        <Link to={ROUTES.REGISTER} className={getLinkClassName(ROUTES.REGISTER)}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Register
-        </Link>
-      </>
-    );
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          {/* Logo */}
-          <Link to={ROUTES.HOME} className="flex items-center">
-            <span className="text-xl font-bold text-primary">TalentBridge</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <Link to={ROUTES.HOME} className={getLinkClassName(ROUTES.HOME)}>
-              Home
-            </Link>
-            {renderAuthLinks()}
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg text-foreground hover:bg-secondary transition-all"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center">
+        <Link to={ROUTES.HOME} className="mr-6 flex items-center">
+          <div className="flex items-center">
+            <span className="text-xl font-bold tracking-tight">
+              100x<span className="text-primary">Engineers</span>
+            </span>
+          </div>
+        </Link>
+        
+        <nav className="hidden md:flex flex-1 items-center gap-6 text-sm">
+          <Link
+            to={ROUTES.HOME}
+            className={cn(
+              "transition-colors hover:text-foreground/80",
+              pathname === ROUTES.HOME ? "text-foreground font-medium" : "text-foreground/60"
+            )}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      <div
-        className={`md:hidden bg-background border-t border-border overflow-hidden transition-all duration-300 ease-spring ${
-          isMenuOpen ? 'max-h-64' : 'max-h-0'
-        }`}
-      >
-        <div className="px-4 py-2 flex flex-col space-y-1">
-          <Link to={ROUTES.HOME} className={getLinkClassName(ROUTES.HOME)}>
             Home
           </Link>
-          {renderAuthLinks()}
+          <Link
+            to={ROUTES.COMMUNITY}
+            className={cn(
+              "transition-colors hover:text-foreground/80",
+              pathname === ROUTES.COMMUNITY ? "text-foreground font-medium" : "text-foreground/60"
+            )}
+          >
+            Community
+          </Link>
+          
+          {user && (
+            <>
+              <Link
+                to={user.role === 'recruiter' ? ROUTES.RECRUITER_DASHBOARD : ROUTES.DASHBOARD}
+                className={cn(
+                  "transition-colors hover:text-foreground/80",
+                  pathname.includes('dashboard') ? "text-foreground font-medium" : "text-foreground/60"
+                )}
+              >
+                Dashboard
+              </Link>
+              {user.role === 'recruiter' && (
+                <Link
+                  to={ROUTES.SEARCH_STUDENTS}
+                  className={cn(
+                    "transition-colors hover:text-foreground/80",
+                    pathname === ROUTES.SEARCH_STUDENTS ? "text-foreground font-medium" : "text-foreground/60"
+                  )}
+                >
+                  Find Talent
+                </Link>
+              )}
+              {user.role === 'student' && (
+                <Link
+                  to={ROUTES.JOB_OFFERS}
+                  className={cn(
+                    "transition-colors hover:text-foreground/80",
+                    pathname === ROUTES.JOB_OFFERS ? "text-foreground font-medium" : "text-foreground/60"
+                  )}
+                >
+                  Job Offers
+                </Link>
+              )}
+            </>
+          )}
+        </nav>
+        
+        <div className="flex items-center gap-2">
+          {user ? (
+            <>
+              <Button variant="outline" size="sm" onClick={() => logout(() => navigate(ROUTES.HOME))}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link to={ROUTES.LOGIN}>Login</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to={ROUTES.REGISTER}>Register</Link>
+              </Button>
+            </>
+          )}
+
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:w-2/3 md:w-1/2">
+              <SheetHeader className="space-y-2">
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>
+                  Navigate through the application.
+                </SheetDescription>
+              </SheetHeader>
+              <nav className="grid gap-4 text-sm mt-8">
+                <Link
+                  to={ROUTES.HOME}
+                  className={cn(
+                    "flex items-center gap-2 transition-colors hover:text-foreground/80",
+                    pathname === ROUTES.HOME ? "text-foreground font-medium" : "text-foreground/60"
+                  )}
+                  onClick={closeMobileMenu}
+                >
+                  Home
+                </Link>
+                <Link
+                  to={ROUTES.COMMUNITY}
+                  className={cn(
+                    "flex items-center gap-2 transition-colors hover:text-foreground/80",
+                    pathname === ROUTES.COMMUNITY ? "text-foreground font-medium" : "text-foreground/60"
+                  )}
+                  onClick={closeMobileMenu}
+                >
+                  Community
+                </Link>
+                {user && (
+                  <>
+                    <Link
+                      to={user.role === 'recruiter' ? ROUTES.RECRUITER_DASHBOARD : ROUTES.DASHBOARD}
+                      className={cn(
+                        "flex items-center gap-2 transition-colors hover:text-foreground/80",
+                        pathname.includes('dashboard') ? "text-foreground font-medium" : "text-foreground/60"
+                      )}
+                      onClick={closeMobileMenu}
+                    >
+                      Dashboard
+                    </Link>
+                    {user.role === 'recruiter' && (
+                      <Link
+                        to={ROUTES.SEARCH_STUDENTS}
+                        className={cn(
+                          "flex items-center gap-2 transition-colors hover:text-foreground/80",
+                          pathname === ROUTES.SEARCH_STUDENTS ? "text-foreground font-medium" : "text-foreground/60"
+                        )}
+                        onClick={closeMobileMenu}
+                      >
+                        Find Talent
+                      </Link>
+                    )}
+                    {user.role === 'student' && (
+                      <Link
+                        to={ROUTES.JOB_OFFERS}
+                        className={cn(
+                          "flex items-center gap-2 transition-colors hover:text-foreground/80",
+                          pathname === ROUTES.JOB_OFFERS ? "text-foreground font-medium" : "text-foreground/60"
+                        )}
+                        onClick={closeMobileMenu}
+                      >
+                        Job Offers
+                      </Link>
+                    )}
+                  </>
+                )}
+              </nav>
+              <div className="mt-8">
+                {user ? (
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => logout(() => {closeMobileMenu(); navigate(ROUTES.HOME);})}>
+                    Logout
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" className="w-full mb-2" asChild onClick={closeMobileMenu}>
+                      <Link to={ROUTES.LOGIN}>Login</Link>
+                    </Button>
+                    <Button size="sm" className="w-full" asChild onClick={closeMobileMenu}>
+                      <Link to={ROUTES.REGISTER}>Register</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
