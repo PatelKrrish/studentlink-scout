@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/auth';
 import Navbar from '@/components/layout/Navbar';
@@ -12,10 +12,15 @@ import CompanyProfileCard from '@/components/recruiter/company-profile/CompanyPr
 import DashboardQuickActions from '@/components/recruiter/dashboard-actions/DashboardQuickActions';
 import TalentPoolTab from '@/components/recruiter/TalentPoolTab';
 import JobOffersTab from '@/components/recruiter/JobOffersTab';
+import CommunitySection from '@/components/recruiter/community/CommunitySection';
+import { StudentProfile } from '@/lib/types';
+import { profileService } from '@/services/profile-service';
 
 const RecruiterDashboard = () => {
   const { user, recruiterProfile, updateRecruiterProfile } = useAuth();
   const navigate = useNavigate();
+  const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     if (!user) {
@@ -24,6 +29,25 @@ const RecruiterDashboard = () => {
       navigate(ROUTES.DASHBOARD);
     }
   }, [user, navigate]);
+  
+  // Fetch students for the community section
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const fetchedStudents = await profileService.getAllStudents({});
+        setStudents(fetchedStudents);
+      } catch (error) {
+        console.error('Error loading students:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (user && user.role === 'recruiter') {
+      fetchStudents();
+    }
+  }, [user]);
   
   if (!user) {
     return (
@@ -71,11 +95,16 @@ const RecruiterDashboard = () => {
           <DashboardQuickActions />
         </div>
 
-        <Tabs defaultValue="students" className="w-full">
+        <Tabs defaultValue="community" className="w-full">
           <TabsList className="w-full max-w-md mx-auto mb-6">
+            <TabsTrigger value="community" className="flex-1">Community</TabsTrigger>
             <TabsTrigger value="students" className="flex-1">Talent Pool</TabsTrigger>
             <TabsTrigger value="jobs" className="flex-1">My Job Postings</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="community" className="mt-6">
+            <CommunitySection students={students} loading={loading} />
+          </TabsContent>
 
           <TabsContent value="students" className="mt-6">
             <TalentPoolTab />
