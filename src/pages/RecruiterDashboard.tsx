@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/auth';
@@ -8,8 +7,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/lib/constants';
-import CompanyProfileCard from '@/components/recruiter/CompanyProfileCard';
-import DashboardQuickActions from '@/components/recruiter/DashboardQuickActions';
+import CompanyProfileCard from '@/components/recruiter/company-profile/CompanyProfileCard';
+import DashboardQuickActions from '@/components/recruiter/dashboard-actions/DashboardQuickActions';
 import TalentPoolTab from '@/components/recruiter/TalentPoolTab';
 import JobOffersTab from '@/components/recruiter/JobOffersTab';
 
@@ -17,7 +16,6 @@ const RecruiterDashboard = () => {
   const { user, recruiterProfile, updateRecruiterProfile } = useAuth();
   const navigate = useNavigate();
   
-  // Redirect if not logged in or not a recruiter
   useEffect(() => {
     if (!user) {
       navigate(ROUTES.LOGIN);
@@ -62,13 +60,11 @@ const RecruiterDashboard = () => {
       <Navbar />
       <main className="flex-1 container py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Company Profile Card */}
           <CompanyProfileCard 
             recruiterProfile={recruiterProfile} 
             updateRecruiterProfile={updateRecruiterProfile} 
           />
 
-          {/* Quick Actions and Stats */}
           <DashboardQuickActions />
         </div>
 
