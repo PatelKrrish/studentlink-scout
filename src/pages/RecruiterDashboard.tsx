@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/auth';
@@ -59,6 +60,8 @@ const RecruiterDashboard = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1 container py-8">
+        <h1 className="text-3xl font-bold mb-6">Recruiter Dashboard</h1>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <CompanyProfileCard 
             recruiterProfile={recruiterProfile} 
