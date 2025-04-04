@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { StudentProfile, WorkStatus } from '@/lib/types';
 import { profileService } from '@/services/profile-service';
 import { jobOffersService } from '@/services/job-offers-service';

@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ForgotPassword from '@/components/auth/ForgotPassword';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ROUTES } from '@/lib/constants';
 
 const ForgotPasswordPage = () => {
