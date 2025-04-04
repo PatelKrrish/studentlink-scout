@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ROUTES } from '@/lib/constants';
 
 // Import pages

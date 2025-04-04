@@ -12,4 +12,5 @@ export const ROUTES = {
   NOT_FOUND: '/404',
   RECRUITER_DASHBOARD: '/recruiter/dashboard',
   SEARCH_STUDENTS: '/search-students',
+  ADMIN_PANEL: '/admin',
 };
